@@ -36,7 +36,7 @@ tex(ImagePool::get("../../data/img/henyori_element_orange.png"))
 void MyGameProject::HenyoriElementOrange::draw(void) const
 {
 	//ScopedDrawBlendMode blend(DX_BLENDMODE_ADD,255);
-	gp::DrawRotaGraph(pos().x(), pos().y(), 1.0,pi<Real>() / 2 + angle_of(v()) , tex, TRUE);
+	gp::DrawRotaGraph(gp::level(12), pos().x(), pos().y(), 1.0,pi<Real>() / 2 + angle_of(v()) , tex, TRUE);
 }
 
 MyGameProject::HenyoriElementOrange::~HenyoriElementOrange(void)

@@ -17,15 +17,18 @@ namespace MyGameProject
 	private:
 		Real ang;
 		int pow;
+		const Real rate_;
 		virtual void custom_updater(void) = 0;
 	public:
 		Shot(const Shape& _shape,int _pow,Real _angle, const Point2D& _p);
+		Shot(const Shape& _shape,int _pow,Real _angle, const Point2D& _p, Real _rate);
 		virtual void draw(void) const = 0;
 		virtual void update(void) override final;
 		virtual bool is_active(void) const = 0;
 		virtual void hit(void) = 0;
 		Real angle(void) const;
 		void angle(Real _angle);
+		Real rate(void) const noexcept;
 		int power(void) const; 
 		static void preperation(void);
 		virtual ~Shot(void);
@@ -134,7 +137,7 @@ namespace MyGameProject
 		static std::array<int, TRAIL_NUM>& hl_tex(void){ static std::array<int, TRAIL_NUM> tex; return tex; }
 		const int tail_tex;
 	public:
-		HomingLazer2(decltype(target) _target, Real _angle, const Point2D& _p);
+		HomingLazer2(decltype(target) _target, Real _angle, const Point2D& _p, int _lock_num);
 		virtual void draw(void) const override final;
 		virtual void hit(void) override final;
 		virtual bool is_active(void) const override final;
@@ -160,7 +163,7 @@ namespace MyGameProject
 		std::array<Point2D, TRAIL_NUM> trail;
 		std::array<std::array<Point2D, 2>, TRAIL_NUM> MX;
 	public:
-		HomingShot2(decltype(target) _target, Real _angle, const Point2D& _p);
+		HomingShot2(decltype(target) _target, Real _angle, const Point2D& _p, int _lock_num);
 		virtual void draw(void) const override final;
 		virtual void hit(void) override final;
 		virtual bool is_active(void) const override final;

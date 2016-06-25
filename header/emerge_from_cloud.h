@@ -3,6 +3,7 @@
 #pragma once
 
 #include "mob_enemy.h"
+#include "decl_static_image_handler.h"
 
 namespace MyGameProject
 {
@@ -25,6 +26,7 @@ namespace MyGameProject
 
 	private:
 		virtual void accessory_custom_updater(void) override final;
+		virtual int released_p_item_num(void) const override final;
 		std::array<gp::smart_ptr<Tail>, 35> followings;
 
 	public:
@@ -37,6 +39,7 @@ namespace MyGameProject
 			);
 		virtual void draw(void) const override final;
 		static void preperation(void);
+		STATIC_IMAGE_HANDLER_LIST(img, 5)
 		virtual ~EmergeFromCloud(void);
 	};
 }

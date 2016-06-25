@@ -52,6 +52,7 @@ namespace MyVM
 			USER_EXTENTION_16 = 221, //0xdd: Extended code.
 
 			LDC = 18,                //0x12: Push item from constant pool onto operand stack. pc[0]:LDC, pc[1]:index 
+			LDC_W = 19,              //0x13: Push item from constant pool onto operand stack. pc[0]:LDC_W, pc[1]:indexbyte1, pc[2]:indexbyte2
 			ILOAD = 21,              //0x15: Load int from local variables. pc[0]:ILOAD, pc[1]:index
 			ILOAD_0 = 26,            //0x1a: Load int from local variables. pc[0]:ILOAD_0
 			ILOAD_1 = 27,            //0x1b: Load int from local variables. pc[0]:ILOAD_1
@@ -139,11 +140,21 @@ namespace MyVM
 		);
 #endif
 		RepeatableVM(void);
-		void reset
-		(
-			const ConstantPool& _constant_pool,
-			const CodeList& _code_list
-		);
+		template<typename ConstantPoolT, typename CodeListT>
+		void reset(ConstantPoolT&& _constant_pool, CodeListT&& _code_list)
+		{
+			constant_pool = std::forward<ConstantPoolT>(_constant_pool);
+			code_list = std::forward<CodeListT>(_code_list);
+			continue_flag = true;
+			frame_stack = decltype(frame_stack)();
+			active_method_info = SymbolicReference("void", "main", {});
+			invoker_info = decltype(invoker_info)();
+			pc_to_return = decltype(pc_to_return)();
+
+			frame_stack.emplace(code_list["main"].reserved_stack_size, code_list["main"].size_of_local_variables);
+			pc = code_list["main"].bytecode.begin();
+			invoker_info.push(SymbolicReference("void", "system", {}));
+		}
 		void execute(void);
 		Word variable(int _index) const;
 		virtual void user_extention_0(void) { ++pc; }

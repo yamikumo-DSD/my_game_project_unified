@@ -9,6 +9,7 @@
 #include "mathematics.h"
 #include <boost/make_unique.hpp>
 #include "black_wings_imple.h"
+#include "shared_object.h"
 
 namespace
 {

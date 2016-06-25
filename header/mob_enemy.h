@@ -38,14 +38,14 @@ namespace MyGameProject
 		);
 		static constexpr auto IMMORTAL = INT_MAX;
 	private:
-		int hp;
-		ActPattern act_pattern;
-		BulletPtrContainer& bullets;
-		SEManager& se_manager;
-		gp::smart_ptr<EnemyOrder> order;
-		Point2D v; //Velocity
 		virtual void custom_updater(void) override final;
 		virtual void accessory_custom_updater(void) = 0;
+		virtual int released_p_item_num(void) const;
+
+		//Default procedure after Health become 0.
+		struct Impl;
+		std::unique_ptr<Impl> pimpl;
+		virtual void update_after_killed(void);
 	public:
 		MobEnemy
 		(
@@ -68,15 +68,22 @@ namespace MyGameProject
 			const Shape& _hitbox_shape,
 			std::vector<gp::smart_ptr<Enemy>>& _enemies
 		);
+		MobEnemy(const MobEnemy& _mob_enemy) noexcept;
+		MobEnemy(MobEnemy&& _mob_enemy) noexcept;
+		MobEnemy& operator=(const MobEnemy& _mob_enemy) = delete;
+		MobEnemy& operator=(MobEnemy&& _mob_enemy) = delete;
 		BulletPtrContainer& get_bullets_ref(void);
 		SEManager& get_se_manager_ref(void);
 		const Point2D& velocity(void) const;
 		Point2D& velocity(void);
 		virtual void hit(int _shot_power) override final;
 		virtual void draw(void) const = 0;
+		virtual void draw_killed_effect(void) const;
 		virtual ~MobEnemy(void);
 		static void preperation(void);
 		virtual int get_health(void) const override final;
+		virtual bool is_just_killed_now(void) const noexcept override final;
+		virtual void kill(void) noexcept override final;
 	};
 }
 

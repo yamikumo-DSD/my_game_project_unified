@@ -4,15 +4,20 @@
 #include "bullet.h"
 #include "item.h"
 #include "find_vacant_object.h"
+#include "shared_object.h"
+#include "border_check.h"
 
-void MyGameProject::PlayGame::convert_bullets(void)
+namespace MyGameProject
 {
-	for (auto& bullet : bullets)
+	void PlayGame::convert_bullets(void)
 	{
-		if (bullet && !bullet->is_resistant())
+		for (auto& bullet : SharedObject::bullets())
 		{
-			*find_vacant_object(items) = Item::create("ConvertedBullet", *player, bullet->pos());
-			bullet.reset();
+			if (bullet && !bullet->is_resistant() && is_within_window(bullet->pos(), 10))
+			{
+				*find_vacant_object(SharedObject::items()) = Item::create("ConvertedBullet", *player, bullet->pos());
+				bullet.reset();
+			}
 		}
 	}
 }

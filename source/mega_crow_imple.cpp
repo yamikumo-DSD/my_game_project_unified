@@ -18,7 +18,7 @@ namespace MyGameProject
 
 	void MegaCrowImple::draw_charactor(void) const
 	{
-		if (count_after_killed <= 200)
+		if (boss.get_count() > 0 && count_after_killed <= 200)
 		{
 			const auto count = boss.get_count();
 			if (display_trails)

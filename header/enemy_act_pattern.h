@@ -56,6 +56,27 @@ namespace MyGameProject
 	MobEnemy::ActPattern pattern105(const std::vector<Point2D>& _args);
 	MobEnemy::ActPattern pattern106(const std::vector<Point2D>& _args);
 	MobEnemy::ActPattern pattern107(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern108(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern109(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern110(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern111(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern112(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern113(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern114(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern115(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern116(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern117(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern118(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern119(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern120(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern121(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern122(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern123(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern124(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern125(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern126(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern127(const std::vector<Point2D>& _args);
+	MobEnemy::ActPattern pattern128(const std::vector<Point2D>& _args);
 }
 
 #endif

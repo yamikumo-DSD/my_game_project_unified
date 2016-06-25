@@ -5,6 +5,7 @@
 
 #include "enemy.h"
 #include <functional>
+#include "back_ground_control.h"
 
 namespace MyGameProject
 {
@@ -12,7 +13,7 @@ namespace MyGameProject
 	class Item;
 	class Player;
 
-	class Boss : public Enemy
+	class Boss : public Enemy, public BackGroundControl::SignalSender
 	{
 	public:
 		using BulletPtrContainer = std::vector <gp::smart_ptr<Bullet>>;
@@ -50,8 +51,11 @@ namespace MyGameProject
 		ItemPtrContainer& get_items_ref(void);
 		virtual void hit(int _shot_power) = 0;
 		virtual void draw(void) const override final;
+		virtual BackGroundControl::OptionalSignal notify(void) const noexcept;
 		virtual ~Boss(void);
 		static void preperation(void);
+		virtual bool is_just_killed_now(void) const noexcept override;
+		virtual void kill(void) noexcept override final;
 	};
 }
 

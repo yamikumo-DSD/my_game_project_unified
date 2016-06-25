@@ -17,7 +17,7 @@ void gp::DX_SStream::operator<<(End const& end)
 	buf.str(empty_str);
 	y = buf_y;
 }
-gp::DX_SStream& gp::DX_SStream::operator<<(Color& _color)
+gp::DX_SStream& gp::DX_SStream::operator<<(const Color& _color)
 {
 	color = _color;
 	return *this;

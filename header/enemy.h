@@ -19,7 +19,7 @@ namespace MyGameProject
 	{
 	private:
 		static int& id_(void) { static int id = 0; return id; }
-		const int id;
+		int id;
 	public:
 		int get_id(void) const;
 	public:
@@ -30,12 +30,17 @@ namespace MyGameProject
 			MIDDLE,
 			SMALL
 		};
+		enum class State
+		{
+			ALIVE, KILLED_BUT_AVAILABLE,
+		};
 	private:
 		const Class enemy_class;
 		const Player& player;
 		int count;
 		Real ang;
 		virtual void custom_updater(void) = 0;
+		State state_;
 	protected:
 		boost::optional<std::vector<gp::smart_ptr<Enemy>>&> enemies;
 	public:
@@ -56,6 +61,8 @@ namespace MyGameProject
 			const Shape& _hitbox_shape,
 			std::vector<gp::smart_ptr<Enemy>>& _enemies
 			);
+		Enemy(const Enemy& _enemy) noexcept;
+		Enemy(Enemy&& _enemy) noexcept;
 		virtual void draw(void) const = 0;
 		Real angle(void) const;
 		void angle(Real _ang);
@@ -67,6 +74,10 @@ namespace MyGameProject
 		const Player& player_ref(void) const;
 		virtual ~Enemy(void);
 		static void preperation(void);
+		virtual bool is_just_killed_now(void) const noexcept = 0;
+		virtual void kill(void) noexcept = 0;
+		State state(void) const noexcept;
+		void state(State _new_state) noexcept;
 	};
 }
 

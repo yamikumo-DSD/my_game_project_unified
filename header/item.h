@@ -6,6 +6,7 @@
 #include "object.h"
 #include "smart_ptr.h"
 #include <string>
+#include <memory>
 
 namespace MyGameProject
 {
@@ -47,6 +48,25 @@ namespace MyGameProject
 		virtual void draw(void) const override final;
 		virtual void custom_updater(void) override final;
 		virtual ~ConvertedBullet(void);
+		static void preperation(void);
+	};
+
+	class Point : public Item
+	{
+	private:
+		struct Impl;
+		std::unique_ptr<Impl> pimpl;
+	public:
+		//Ctors
+		Point(const Player& _player, const Point2D& _initial_pos, Real _initial_angle) noexcept;
+		Point(const Point& _point) noexcept; 
+		Point(Point&& _point) noexcept;
+		//Assign operators
+		Point& operator=(const Point& _point) noexcept; 
+		Point& operator=(Point&& _point) noexcept;
+		virtual void draw(void) const override final;
+		virtual void custom_updater(void) override final;
+		virtual ~Point(void);
 		static void preperation(void);
 	};
 }

@@ -30,12 +30,15 @@ namespace MyGameProject
 		}
 		virtual void draw(void) const override final
 		{
-			gp::SetDrawBlendModeOf
-			(
-				gp::DrawRotaGraph(gp::level(14), pos().x(), pos().y(), 0.5, angle + half_pi<Real>(), shot_hit_img(), true),
-				DX_BLENDMODE_ALPHA,
-				200 - 20 * count
-			);
+			if (count > 0)
+			{
+				gp::SetDrawBlendModeOf
+					(
+						gp::DrawRotaGraph(gp::level(14), pos().x(), pos().y(), 0.5, angle + half_pi<Real>(), shot_hit_img(), true),
+						DX_BLENDMODE_ALPHA,
+						200 - 20 * count
+						);
+			}
 		}
 		virtual void update(void)override final
 		{
@@ -55,98 +58,99 @@ namespace MyGameProject
 		std::array<ShotHit, 3> shot_hits;
 		int count_after_hit;
 	};
-}
 
-MyGameProject::NormalShot::NormalShot(Real _angle,const Point2D& _p)
-	:Shot(ShapeElement::Circle(25),5,_angle,_p),
-	hit_flag(false),
-	hit_moment(0),
-	count(0),
-	vars(std::make_unique<NormalShotImple>())
-{
-	vars->count_after_hit = 0;
-}
-
-void MyGameProject::NormalShot::draw(void) const
-{
-	if (!hit_flag)
+	NormalShot::NormalShot(Real _angle,const Point2D& _p)
+		:Shot(ShapeElement::Circle(25),5,_angle,_p),
+		hit_flag(false),
+		hit_moment(0),
+		count(0),
+		vars(std::make_unique<NormalShotImple>())
 	{
-		gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.0, angle() + pi<Real>() / 2, NormalShotImple::ofuda_img(), TRUE); 
-		gp::SetDrawBlendModeOf
-		(
-			gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.0, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/aura.png"), TRUE),
-			DX_BLENDMODE_ALPHA,
-			255
-		);
+		vars->count_after_hit = 0;
 	}
-	else
+
+	void NormalShot::draw(void) const
 	{
-		for (const auto& shot_hit : vars->shot_hits)
+		if (!hit_flag)
 		{
-			shot_hit.draw();
+			gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.0, angle() + pi<Real>() / 2, NormalShotImple::ofuda_img(), TRUE); 
+			gp::SetDrawBlendModeOf
+			(
+				gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.0, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/aura.png"), TRUE),
+				DX_BLENDMODE_ALPHA,
+				255
+			);
 		}
-		//gp::DrawRotaGraph(pos().x(), pos().y(), 2.0, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/shot_active.png"), TRUE); 
-	}
-}
-
-void MyGameProject::NormalShot::hit(void)
-{
-	hit_flag = true;
-	if (!hit_flag){ hit_moment = count; }
-}
-
-bool MyGameProject::NormalShot::is_active(void) const
-{
-	return !hit_flag;
-}
-
-void MyGameProject::NormalShot::custom_updater(void) 
-{
-	static constexpr MyGameProject::Real SHOT_VELOCITY = 25.0;
-
-	if (!hit_flag)
-	{
-		const auto x = pos().x(), y = pos().y();
-		pos().x(x + SHOT_VELOCITY * std::cos(angle()));
-		pos().y(y + SHOT_VELOCITY * std::sin(angle()));
-		if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
+		else
 		{
-			set_flag_off();
-		}
-	}
-	else
-	{
-		if (count > hit_moment + 10){ set_flag_off(); }
-	}
-
-	if (hit_flag)
-	{
-		if (vars->count_after_hit == 0)
-		{
-			auto theta0 = gp::safe_rand(0.f, two_pi<Real>());
-			for (int i = 0; i != vars->shot_hits.size(); ++i)
+			for (const auto& shot_hit : vars->shot_hits)
 			{
-				vars->shot_hits[i] = ShotHit(pos(), theta0 + i * two_pi<Real>() / vars->shot_hits.size());
+				shot_hit.draw();
+			}
+			//gp::DrawRotaGraph(pos().x(), pos().y(), 2.0, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/shot_active.png"), TRUE); 
+		}
+	}
+
+	void NormalShot::hit(void)
+	{
+		hit_flag = true;
+		if (!hit_flag){ hit_moment = count; }
+	}
+
+	bool NormalShot::is_active(void) const
+	{
+		return !hit_flag;
+	}
+
+	void NormalShot::custom_updater(void) 
+	{
+		static constexpr Real SHOT_VELOCITY = 25.0;
+
+		if (!hit_flag)
+		{
+			const auto x = pos().x(), y = pos().y();
+			pos().x(x + SHOT_VELOCITY * std::cos(angle()));
+			pos().y(y + SHOT_VELOCITY * std::sin(angle()));
+			if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
+			{
+				set_flag_off();
 			}
 		}
-		for (auto& shot_hit : vars->shot_hits)
+		else
 		{
-			shot_hit.update();
+			if (count > hit_moment + 10){ set_flag_off(); }
 		}
-		++vars->count_after_hit;
+
+		if (hit_flag)
+		{
+			if (vars->count_after_hit == 0)
+			{
+				auto theta0 = gp::safe_rand(0.f, two_pi<Real>());
+				for (int i = 0; i != vars->shot_hits.size(); ++i)
+				{
+					vars->shot_hits[i] = ShotHit(pos(), theta0 + i * two_pi<Real>() / vars->shot_hits.size());
+				}
+			}
+			for (auto& shot_hit : vars->shot_hits)
+			{
+				shot_hit.update();
+			}
+			++vars->count_after_hit;
+		}
+		++count;
 	}
-	++count;
+
+	NormalShot::~NormalShot(void){}
+
+	void NormalShot::preperation(void)
+	{
+		//Load images.
+		ImagePool::add("../../data/img/ofuda.png");
+		NormalShotImple::ofuda_img() = ImagePool::get("../../data/img/ofuda.png");
+		ImagePool::add("../../data/img/aura.png");
+		ImagePool::add("../../data/img/shot_active.png");
+		ImagePool::add("../../data/img/shot_hit.png");
+		ShotHit::preperation();
+	}
 }
 
-MyGameProject::NormalShot::~NormalShot(void){}
-
-void MyGameProject::NormalShot::preperation(void)
-{
-	//Load images.
-	ImagePool::add("../../data/img/ofuda.png");
-	NormalShotImple::ofuda_img() = ImagePool::get("../../data/img/ofuda.png");
-	ImagePool::add("../../data/img/aura.png");
-	ImagePool::add("../../data/img/shot_active.png");
-	ImagePool::add("../../data/img/shot_hit.png");
-	ShotHit::preperation();
-}

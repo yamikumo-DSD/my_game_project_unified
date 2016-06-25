@@ -17,6 +17,7 @@
 #include "color.h"
 #include "ranged_uniform_random.h"
 #include "player.h"
+#include "shared_object.h"
 
 namespace
 {
@@ -113,8 +114,8 @@ void MyGameProject::BlackWingsImple::wave1(void)
 			{
 				for (int i = -1; i < 2; ++i)
 				{
-					*find_vacant_object(boss.get_bullets_ref()) = Bullet::create("WindSmasher", boss, boss.player_ref(), p1, theta + i * pi<Real>() / 6, straight_course(10));
-					*find_vacant_object(boss.get_bullets_ref()) = Bullet::create("WindSmasher", boss, boss.player_ref(), p2, pi<Real>() + theta + i * pi<Real>() / 6, straight_course(10));
+					*find_vacant_object(SharedObject::bullets()) = Bullet::create("WindSmasher", boss, boss.player_ref(), p1, theta + i * pi<Real>() / 6, straight_course(10));
+					*find_vacant_object(SharedObject::bullets()) = Bullet::create("WindSmasher", boss, boss.player_ref(), p2, pi<Real>() + theta + i * pi<Real>() / 6, straight_course(10));
 					boss.erect_se_flag_of("../../data/sound/enemy_shot.wav");
 				}
 			}
@@ -143,7 +144,7 @@ void MyGameProject::BlackWingsImple::wave2(void)
 				boss.erect_se_flag_of("../../data/sound/enemy_shot.wav");
 				for (int i = -1; i < 2; ++i)
 				{
-					*find_vacant_object(boss.get_bullets_ref()) = Bullet::create("WindSmasher", boss, boss.player_ref(), boss.pos(), angle_of(boss.player_ref().pos() - boss.pos()) + i * pi<Real>() / 20, straight_course(12));
+					*find_vacant_object(SharedObject::bullets()) = Bullet::create("WindSmasher", boss, boss.player_ref(), boss.pos(), angle_of(boss.player_ref().pos() - boss.pos()) + i * pi<Real>() / 20, straight_course(12));
 					boss.erect_se_flag_of("../../data/sound/enemy_shot.wav");
 				}
 			}
@@ -155,7 +156,7 @@ void MyGameProject::BlackWingsImple::wave2(void)
 			boss.erect_se_flag_of("../../data/sound/enemy_shot.wav");
 			for (int i = 0; i != 2; ++i)
 			{
-				*find_vacant_object(boss.get_bullets_ref())
+				*find_vacant_object(SharedObject::bullets())
 					= Bullet::create
 					(
 					"HenyoriElementOrange",
@@ -166,7 +167,7 @@ void MyGameProject::BlackWingsImple::wave2(void)
 				{
 					auto count = _b.get_count();
 					auto speed = 5; if (count > 20){ speed = 10; }
-					float omega = 0.1; if (count > 30 && count < 100){ omega += (count - 30) * static_cast<Real>(0.002); }
+					auto omega{ static_cast<Real>(0.1) }; if (count > 30 && count < 100) { omega += (count - 30) * static_cast<Real>(0.002); }
 
 					Real theta = angle_of(dst - _b.pos());
 					Real angle = _b.angle();
@@ -204,9 +205,8 @@ void MyGameProject::BlackWingsImple::wave3(void)
 
 		if (c % 500 == 0)
 		{
-			camera_frame = 
-				(
-				*find_vacant_object(boss.get_bullets_ref()) = 
+			auto temp
+			{
 				Bullet::create
 				(
 				"CameraFrame", 
@@ -215,7 +215,10 @@ void MyGameProject::BlackWingsImple::wave3(void)
 				0,
 				accurate_homing(boss.player_ref(),6.5, 150)
 				)
-				);
+			};
+			camera_frame = temp;
+			*find_vacant_object(SharedObject::bullets()) = std::move(temp);
+
 			boss.change_play_speed(0.5);
 			boss.erect_se_flag_of("../../data/sound/Clock-Second_Hand01-1L.mp3");
 		}
@@ -223,7 +226,7 @@ void MyGameProject::BlackWingsImple::wave3(void)
 		{
 			boss.erect_se_flag_of("../../data/sound/se-033a.mp3");
 			boss.change_play_speed(1.0);
-			if (camera_frame){ shuttered_point = camera_frame->pos(); }
+			if (!camera_frame.expired() && camera_frame.lock()->get_flag()){ shuttered_point = camera_frame.lock()->pos(); }
 		}
 		if (c % 500 >= 151 && c % 500 <= 499)
 		{
@@ -233,7 +236,7 @@ void MyGameProject::BlackWingsImple::wave3(void)
 				const auto r = gp::safe_rand<Real>(-pi<Real>(),pi<Real>());
 				for (int i = 0; i != N; ++i)
 				{
-					*find_vacant_object(boss.get_bullets_ref()) = Bullet::create("WindSmasher", boss, boss.player_ref(), shuttered_point, r + i * 2 * pi<Real>() / N, straight_course(4));
+					*find_vacant_object(SharedObject::bullets()) = Bullet::create("WindSmasher", boss, boss.player_ref(), shuttered_point, r + i * 2 * pi<Real>() / N, straight_course(4));
 					boss.erect_se_flag_of("../../data/sound/enemy_shot.wav");
 				}
 			}
@@ -286,19 +289,19 @@ void MyGameProject::BlackWingsImple::wave4(void)
 			case 0:
 				if (cycle_count % 10 == 0)
 				{
-					for (int i = 0; i != 6;++i){ *find_vacant_object(boss.get_bullets_ref()) = Bullet::create("Typical", boss, boss.player_ref(), boss.pos(), half_pi<Real>(), acceleration(10, -0.1 * i,2 - 0.3 * i)); }
+					for (int i = 0; i != 6;++i){ *find_vacant_object(SharedObject::bullets()) = Bullet::create("Typical", boss, boss.player_ref(), boss.pos(), half_pi<Real>(),  acceleration(10, static_cast<Real>(-0.1 * i),static_cast<Real>(2 - 0.3 * i))); }
 				}
 				break;
 			case 1:
 				if (cycle_count % 5 == 0)
 				{
-					for (int i = 0; i != 6; ++i){ *find_vacant_object(boss.get_bullets_ref()) = Bullet::create("Typical", boss, boss.player_ref(), boss.pos(), half_pi<Real>(), acceleration(15, -0.3 * i,4 - 0.6 * i)); }
+					for (int i = 0; i != 6; ++i){ *find_vacant_object(SharedObject::bullets()) = Bullet::create("Typical", boss, boss.player_ref(), boss.pos(), half_pi<Real>(), acceleration(15, static_cast<Real>(-0.3 * i),static_cast<Real>(4 - 0.6 * i))); }
 				}
 				break;
 			case 2:
 				if (cycle_count % 2 == 0)
 				{
-					for (int i = 0; i != 6; ++i){ *find_vacant_object(boss.get_bullets_ref()) = Bullet::create("Typical", boss, boss.player_ref(), boss.pos(), half_pi<Real>(), acceleration(20, -0.6 * i,8 - 1.0 * i)); }
+					for (int i = 0; i != 6; ++i){ *find_vacant_object(SharedObject::bullets()) = Bullet::create("Typical", boss, boss.player_ref(), boss.pos(), half_pi<Real>(), acceleration(20, static_cast<Real>(-0.6 * i),static_cast<Real>(8 - 1.0 * i))); }
 				}
 				break;
 			case 3:
@@ -307,7 +310,7 @@ void MyGameProject::BlackWingsImple::wave4(void)
 					
 					for (int i = 0; i < 4; ++i)
 					{
-						*find_vacant_object(boss.get_bullets_ref()) = Bullet::create("Feather", boss, boss.player_ref(), diffuse_point_rect(Point2D(-100, 100), Point2D(WW<Real>() + 100, 120)), gp::safe_rand<Real>(static_cast<Real>(1.5 - 0.2) * pi<Real>(), static_cast<Real>(1.5 + 0.2) * pi<Real>()), parabola(7, static_cast<Real>(0.2)));
+						*find_vacant_object(SharedObject::bullets()) = Bullet::create("Feather", boss, boss.player_ref(), diffuse_point_rect(Point2D(-100, 100), Point2D(WW<Real>() + 100, 120)), gp::safe_rand<Real>(static_cast<Real>(1.5 - 0.2) * pi<Real>(), static_cast<Real>(1.5 + 0.2) * pi<Real>()), parabola(7, static_cast<Real>(0.2)));
 					}
 				}
 				break;
@@ -317,7 +320,7 @@ void MyGameProject::BlackWingsImple::wave4(void)
 					
 					for (int i = 0; i < 4; ++i)
 					{
-						*find_vacant_object(boss.get_bullets_ref()) = Bullet::create("Feather", boss, boss.player_ref(), diffuse_point_rect(Point2D(-100, 100), Point2D(WW<Real>() + 100, 120)), gp::safe_rand<Real>(static_cast<Real>(1.5 - 0.2) * pi<Real>(), static_cast<Real>(1.5 + 0.2) * pi<Real>()), parabola(7, static_cast<Real>(0.2)));
+						*find_vacant_object(SharedObject::bullets()) = Bullet::create("Feather", boss, boss.player_ref(), diffuse_point_rect(Point2D(-100, 100), Point2D(WW<Real>() + 100, 120)), gp::safe_rand<Real>(static_cast<Real>(1.5 - 0.2) * pi<Real>(), static_cast<Real>(1.5 + 0.2) * pi<Real>()), parabola(7, static_cast<Real>(0.2)));
 					}
 				}
 				break;			
@@ -358,11 +361,11 @@ void MyGameProject::BlackWingsImple::action(void)
 		if (wave < WAVE_NUM)
 		{
 			boss.erect_se_flag_of("../../data/sound/sei_ge_garasu_hibi02.mp3");
-			for (auto& bullet : boss.get_bullets_ref())
+			for (auto& bullet : SharedObject::bullets())
 			{
 				if (bullet && addressof(bullet->get_master_ref()) == addressof(boss))
 				{
-					*find_vacant_object(boss.get_items_ref()) = Item::create("ConvertedBullet", boss.player_ref(), bullet->pos());
+					*find_vacant_object(SharedObject::items()) = Item::create("ConvertedBullet", boss.player_ref(), bullet->pos());
 					bullet.reset();
 				}
 			}
@@ -371,11 +374,11 @@ void MyGameProject::BlackWingsImple::action(void)
 		else
 		{
 			boss.erect_se_flag_of("../../data/sound/sei_ge_garasu_hibi02.mp3");
-			for (auto& bullet : boss.get_bullets_ref())
+			for (auto& bullet : SharedObject::bullets())
 			{
 				if (bullet && addressof(bullet->get_master_ref()) == addressof(boss))
 				{
-					*find_vacant_object(boss.get_items_ref()) = Item::create("ConvertedBullet",boss.player_ref(),bullet->pos());
+					*find_vacant_object(SharedObject::items()) = Item::create("ConvertedBullet",boss.player_ref(),bullet->pos());
 					bullet.reset();
 				}
 			}
@@ -405,17 +408,17 @@ void MyGameProject::BlackWingsImple::draw_charactor(void) const
 	{
 		gp::SetDrawBlendModeOf
 		(
-			gp::DrawCircle(p.x(), p.y(), 14, gp::red.get()),
+			gp::DrawCircle(static_cast<Real>(p.x()), static_cast<Real>(p.y()), 14, gp::red),
 			DX_BLENDMODE_ALPHA, 100 - 15 * i++
 		);
 	}
 
-	gp::DrawCircle(boss.pos().x(), boss.pos().y(), 14, gp::black.get());
+	gp::DrawCircle(static_cast<Real>(boss.pos().x()), static_cast<Real>(boss.pos().y()), 14, gp::black);
 
 	if (wave == 1)
 	{
-		gp::DrawCircle(p1.x(), p1.y(), 14, gp::red.get());
-		gp::DrawCircle(p2.x(), p2.y(), 14, gp::red.get());
+		gp::DrawCircle(static_cast<Real>(p1.x()), static_cast<Real>(p1.y()), 14, gp::red);
+		gp::DrawCircle(static_cast<Real>(p2.x()), static_cast<Real>(p2.y()), 14, gp::red);
 	}
 	if (white_out_flag)
 	{

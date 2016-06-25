@@ -6,7 +6,7 @@
 
 void MyGameProject::ImagePool::add(const std::string& _name)
 {
-	data().insert({ _name, LoadGraph(_name.c_str()) });
+	data().emplace( _name, LoadGraph(_name.c_str()) );
 }
 
 void MyGameProject::ImagePool::add_multi(const std::string& _name, int _all_num, int _x_num, int _y_num, int _x_size, int _y_size)
@@ -16,7 +16,7 @@ void MyGameProject::ImagePool::add_multi(const std::string& _name, int _all_num,
 	for (int i = 0; i < _all_num;++i)
 	{
 		//First number is 0, and last number is (_all_num - 1)
-		data().insert({_name + "@" + boost::lexical_cast<std::string>(i),v[i]});
+		data().emplace(_name + "@" + boost::lexical_cast<std::string>(i),v[i]);
 	}
 }
 

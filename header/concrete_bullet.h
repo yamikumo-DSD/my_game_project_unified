@@ -11,5 +11,7 @@
 #include "camera_frame.h"
 #include "lazer.h"
 #include "b0.h"
+#include "b1.h"
+#include "b_234.h"
 
 #endif

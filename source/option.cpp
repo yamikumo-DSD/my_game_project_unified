@@ -1,5 +1,7 @@
 //option.cpp
 
+#if 0
+
 #include "option.h"
 #include "player.h"
 #include "draw_order.h"
@@ -73,3 +75,5 @@ void MyGameProject::Option::preperation(void)
 }
 
 MyGameProject::Option::~Option(void){}
+
+#endif

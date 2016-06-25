@@ -17,67 +17,74 @@
 namespace MyGameProject
 {
 	using namespace boost::math::constants;
-}
 
-MyGameProject::HyperShot2::HyperShot2(Real _angle,const Point2D& _p)
-	:Shot(ShapeElement::Circle(15),13,_angle,_p),
-	hit_flag(false),
-	hit_moment(0),
-	count(0)
-{}
+	HyperShot2::HyperShot2(Real _angle,const Point2D& _p)
+		:Shot(ShapeElement::Circle(15),7,_angle,_p),
+		hit_flag(false),
+		hit_moment(0),
+		count(0)
+	{}
 
-void MyGameProject::HyperShot2::draw(void) const
-{
-	if (!hit_flag)
+	void HyperShot2::draw(void) const
 	{
-		gp::SetDrawBlendModeOf
-		(
-			gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.7, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/hyper_shot.png"), TRUE),
-			DX_BLENDMODE_ADD,
-			255
-		);
-	}
-	else{ gp::DrawRotaGraph(pos().x(), pos().y(), 1.7, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/shot_active.png"), TRUE); }
-}
-
-void MyGameProject::HyperShot2::hit(void)
-{
-	hit_flag = true;
-	if (!hit_flag){ hit_moment = count; }
-}
-
-bool MyGameProject::HyperShot2::is_active(void) const
-{
-	return !hit_flag;
-}
-
-void MyGameProject::HyperShot2::custom_updater(void) 
-{
-	static constexpr MyGameProject::Real SHOT_VELOCITY = 15.0;
-
-	if (!hit_flag)
-	{
-		const auto x = pos().x(), y = pos().y();
-		pos().x(x + SHOT_VELOCITY * std::cos(angle()));
-		pos().y(y + SHOT_VELOCITY * std::sin(angle()));
-		if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
+		if (!hit_flag)
 		{
-			set_flag_off();
+			gp::SetDrawBlendModeOf
+			(
+				gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.7, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/hyper_shot.png"), TRUE),
+				DX_BLENDMODE_MULA,
+				100
+			);
+			gp::SetDrawBlendModeOf
+			(
+				gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.7, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/hyper_shot.png"), TRUE),
+				DX_BLENDMODE_ADD,
+				100
+			);
 		}
+		else{ gp::DrawRotaGraph(gp::level(14), pos().x(), pos().y(), 1.7, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/shot_active.png"), TRUE); }
 	}
-	else
+
+	void HyperShot2::hit(void)
 	{
-		if (count > hit_moment + 10){ set_flag_off(); }
+		hit_flag = true;
+		if (!hit_flag){ hit_moment = count; }
 	}
 
-	++count;
+	bool HyperShot2::is_active(void) const
+	{
+		return !hit_flag;
+	}
+
+	void HyperShot2::custom_updater(void) 
+	{
+		static constexpr Real SHOT_VELOCITY = 15.0;
+
+		if (!hit_flag)
+		{
+			const auto x = pos().x(), y = pos().y();
+			pos().x(x + SHOT_VELOCITY * std::cos(angle()));
+			pos().y(y + SHOT_VELOCITY * std::sin(angle()));
+			if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
+			{
+				set_flag_off();
+			}
+		}
+		else
+		{
+			if (count > hit_moment + 10){ set_flag_off(); }
+		}
+
+		++count;
+	}
+
+	HyperShot2::~HyperShot2(void){}
+
+	void HyperShot2::preperation(void)
+	{
+		//Load images.
+		ImagePool::add("../../data/img/hyper_shot.png");
+		ImagePool::add("../../data/img/shot_active.png");
+	}
 }
 
-MyGameProject::HyperShot2::~HyperShot2(void){}
-
-void MyGameProject::HyperShot2::preperation(void)
-{
-	//Load images.
-	ImagePool::add("../../data/img/hyper_shot.png");
-	ImagePool::add("../../data/img/shot_active.png");
-}

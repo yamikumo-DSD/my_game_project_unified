@@ -44,6 +44,28 @@ namespace gp
 				unsigned int value(void) const;
 			};
 
+			class ScopedGraph
+			{
+			private:
+				GrHandleType value;
+			public:
+				ScopedGraph(int XSize, int YSize, bool UseAlphaChannel) noexcept;
+
+				//Move only
+				ScopedGraph(ScopedGraph&&) noexcept;
+				ScopedGraph& operator=(ScopedGraph&&) noexcept;
+
+				//Non-copyable
+				ScopedGraph(const ScopedGraph&) = delete;
+				ScopedGraph& operator=(const ScopedGraph&) = delete;
+
+				int clear(void) noexcept;
+
+				operator GrHandleType() const noexcept;
+
+				~ScopedGraph(void) noexcept;
+			};
+
 			static Level level(unsigned int level);
 
 			static void clear(void);
@@ -67,6 +89,7 @@ namespace gp
 
 
 			static GrHandleType MakeScreen(int XSize, int YSize, int UseAlphaChannel = 0);
+			static GrHandleType DerivationGraph(int SrcX, int SrcY, int Width, int Height, int SrcGraphHendle);
 
 			friend Reference operator>>(Reference Bottom, Reference Top);
 		};
@@ -79,6 +102,7 @@ namespace gp
 
 	using Reference = Imple::DrawOrder::Reference;
 	using GrHandle = Imple::DrawOrder::GrHandleType;
+	using ScopedGraph = Imple::DrawOrder::ScopedGraph;
 
 	void ApplyDrawer(void);
 	void ClearDrawer(void);
@@ -102,6 +126,7 @@ namespace gp
 	Reference SetDrawScreenOf(Reference Drawer, int GrHandle);
 
 	GrHandle MakeScreen(int XSize, int YSize, int UseAlphaChannel = 0);
+	GrHandle DerivationGraph(int SrcX, int SrcY, int Width, int Height, int SrcGraphHendle);
 }
 
 #undef GP_FALSE_VALUE

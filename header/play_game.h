@@ -7,6 +7,10 @@
 #include "smart_ptr.h"
 #include <vector>
 #include "vm/vm.h"
+#include "player_health_gage.h"
+#include "base_rate_drawer.h"
+#include "score_drawer.h"
+#include <boost/optional.hpp>
 
 #define DEBUG_MODE 1
 
@@ -15,16 +19,14 @@ namespace MyGameProject
 	class Device;
 	class Player;
 	class Bullet;
-	class Option;
 	class Shot;
 	class SEManager;
-	class ShortRangeWeapon;
 	class MobEnemy;
 	class Enemy;
 	class Boss;
-	class BackGround;
 	class Item;
-	struct EnemyOrder;
+	class BackGroundControl;
+	class DestroyEnemyRate;
 
 	class PlayGame : 
 		public MyGameProject::Scene,
@@ -44,27 +46,32 @@ namespace MyGameProject
 #endif
 	private:
 		gp::smart_ptr<Device>                  device;
-		gp::smart_ptr<BackGround>              back_ground;
-		gp::smart_ptr<BackGround>              hyper_mode_back;
 		gp::smart_ptr<Player>                  player;
-		std::vector<gp::smart_ptr<Option>>     options;
 		std::vector<gp::smart_ptr<Bullet>>     bullets;
 		std::vector<gp::smart_ptr<Shot>>       shots;
-		std::vector<gp::smart_ptr<Enemy>>      enemies;
-		std::vector<gp::smart_ptr<MobEnemy>>   mob_enemies;
-		std::vector<gp::smart_ptr<EnemyOrder>> enemy_orders;
-		std::vector<gp::smart_ptr<Boss>>       bosses;
+		std::vector<gp::smart_ptr<Enemy>>      enemies; //enemy = boss + mob_enemies
+		std::vector<std::weak_ptr<MobEnemy>>   mob_enemies;
+		std::weak_ptr<Boss>                    boss;
 		std::vector<gp::smart_ptr<Item>>       items;
-		gp::smart_ptr<ShortRangeWeapon>        short_range_weapon;
+		gp::smart_ptr<BackGroundControl>       back_ground_control;
 		gp::smart_ptr<SEManager>               se_manager;
 		void hit_and_damage_dealer(void);
 		void item_and_score_dealer(void);
-		void shot_register(void);
 		void convert_bullets(void);
 		void load_stage_enemy_list(int _stage_num);
 		int static_count;
 		int count;
+		float base_rate{1.f};
+		int score{0};
 		unsigned int slow;
+		PlayerHealthGage player_health_gage;
+		BaseRateDrawer base_rate_drawer;
+		ScoreDrawer score_drawer;
+		std::vector<gp::smart_ptr<DestroyEnemyRate>> lock_rate_indicator;
+		enum class StageProceedingSignal
+		{
+			STAY, START_INITIAL_STAGE, GOTO_NEXT_STAGE, GOTO_STAGE0, GOTO_STAGE3,
+		}stage_proceeding_signal;
 
 		virtual void user_extention_0(void) override final;
 		virtual void user_extention_1(void) override final;

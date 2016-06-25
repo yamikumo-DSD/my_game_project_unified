@@ -6,12 +6,38 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <cmath>
+#include <type_traits>
 
 namespace MyGameProject
 {
 	using Real = float;
 	namespace bg = boost::geometry;
 	using Point2D = bg::model::d2::point_xy <Real>;
+
+#ifndef MY_GAME_PROJECT_PI
+#define MY_GAME_PROJECT_PI 3.14159265358979323846264338327950288419716939937510L
+#endif
+	template<typename T, std::enable_if_t<std::is_arithmetic<T>::value>* = nullptr>
+	inline constexpr T pi(void)
+	{
+		return static_cast<T>(MY_GAME_PROJECT_PI);
+	}
+	template<typename T, std::enable_if_t<std::is_arithmetic<T>::value>* = nullptr>
+	inline constexpr T half_pi(void)
+	{
+		return static_cast<T>(MY_GAME_PROJECT_PI / 2);
+	}
+	template<typename T, std::enable_if_t<std::is_arithmetic<T>::value>* = nullptr>
+	inline constexpr T two_pi(void)
+	{
+		return static_cast<T>(2 * MY_GAME_PROJECT_PI);
+	}
+
+	template<typename RealType, std::enable_if_t<std::is_arithmetic<std::decay_t<RealType>>::value>* = nullptr>
+	inline auto elem(RealType&& _angle) noexcept
+	{
+		return Point2D(static_cast<Real>(std::cos(std::forward<RealType>(_angle))), static_cast<Real>(std::sin(std::forward<RealType>(_angle))));
+	}
 
 	template<class VectorType>
 	Real angle_of(const VectorType& _v)

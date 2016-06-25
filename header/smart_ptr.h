@@ -15,23 +15,26 @@ namespace gp
 
 	//Specification 1 for unique_ptr<T>
 	template<class T, class... Args>
-	typename std::enable_if<std::is_same<smart_ptr<T>, std::unique_ptr<T>>::value, smart_ptr<T> >::type make_smart(Args&&... args)
+	typename std::enable_if<std::is_same<smart_ptr<T>, std::unique_ptr<T>>::value, smart_ptr<T> >::type 
+	make_smart(Args&&... args)
 	{
-		return boost::make_unique<T>(args...);
+		return boost::make_unique<T>(std::forward<Args>(args)...);
 	}
 
 	//Specificaton 2 for shared_ptr<T>
 	template<class T, class... Args>
-	typename std::enable_if<std::is_same<smart_ptr<T>, std::shared_ptr<T>>::value, smart_ptr<T> >::type make_smart(Args&&... args)
+	typename std::enable_if<std::is_same<smart_ptr<T>, std::shared_ptr<T>>::value, smart_ptr<T> >::type 
+	make_smart(Args&&... args)
 	{
-		return std::make_shared<T>(args...);
+		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 
 	//Specificaton 3 for boost::optional<T>
 	template<class T, class... Args>
-	typename std::enable_if<std::is_same<smart_ptr<T>, boost::optional<T>>::value, smart_ptr<T> >::type make_smart(Args&&... args)
+	typename std::enable_if<std::is_same<smart_ptr<T>, boost::optional<T>>::value, smart_ptr<T> >::type 
+	make_smart(Args&&... args)
 	{
-		return boost::optional<T>(args...);
+		return boost::optional<T>(std::forward<Args>(args)...);
 	}
 }
 

@@ -25,9 +25,9 @@ const Player& _player
 void MyGameProject::Crow::draw(void) const
 {
 	const auto vx = velocity().x();
-	if (vx > 0){ gp::DrawRotaGraph(pos().x(), pos().y(), 0.15, angle(), ImagePool::get("../../data/img/crow.png@2"), TRUE); }
-	else if (vx == 0){ gp::DrawRotaGraph(pos().x(), pos().y(), 0.15, angle(), ImagePool::get("../../data/img/crow.png@1"), TRUE); }
-	else{ gp::DrawRotaGraph(pos().x(), pos().y(), 0.15, angle(), ImagePool::get("../../data/img/crow.png@0"), TRUE); }
+	if      (vx  > 0){ gp::DrawRotaGraphF(static_cast<Real>(pos().x()), static_cast<Real>(pos().y()), 0.15, angle(), ImagePool::get("../../data/img/crow.png@2"), TRUE); }
+	else if (vx == 0){ gp::DrawRotaGraphF(static_cast<Real>(pos().x()), static_cast<Real>(pos().y()), 0.15, angle(), ImagePool::get("../../data/img/crow.png@1"), TRUE); }
+	else             { gp::DrawRotaGraphF(static_cast<Real>(pos().x()), static_cast<Real>(pos().y()), 0.15, angle(), ImagePool::get("../../data/img/crow.png@0"), TRUE); }
 }
 
 void MyGameProject::Crow::accessory_custom_updater(void)

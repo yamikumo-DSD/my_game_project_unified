@@ -7,10 +7,11 @@
 
 gp::MakeDxLib::MakeDxLib(int _window_mode) :window_mode(_window_mode), kill_flag(1)
 {
-	if (ChangeWindowMode(_window_mode)){throw std::runtime_error("Fail to change window mode."); };
-	if (DxLib_Init()){throw std::runtime_error("Fail to initialize DXライブラリ."); }
+	if (DxLib::ChangeWindowMode(_window_mode)){throw std::runtime_error("Fail to change window mode."); };
+	if (DxLib::SetWaitVSyncFlag(FALSE) == -1) { throw std::runtime_error("Fail to set vsync off."); }
+	if (DxLib::DxLib_Init()){throw std::runtime_error("Fail to initialize DXライブラリ."); }
 	kill_flag = 0; //When superior statements throw an exception, kill_flag remains true.
-	if (SetDrawScreen(DX_SCREEN_BACK)){throw std::runtime_error("Fail to set screen back."); };
+	if (DxLib::SetDrawScreen(DX_SCREEN_BACK)){throw std::runtime_error("Fail to set screen back."); };
 }
 
 void gp::MakeDxLib::process_loop(void)

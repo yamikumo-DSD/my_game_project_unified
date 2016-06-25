@@ -12,9 +12,14 @@
 #include "bullet_behavior.h"
 #include "drawblendmode.h"
 #include "math_constants.h"
+#include "image_pool.h"
+#include "debug.h"
+#include "shared_object.h"
+#include "decl_static_image_handler.h"
+#include "history.h"
 
-static constexpr int MAX_HP_MASTER = 300;
-static constexpr int MAS_HP_SLAVE = 100;
+static constexpr int MAX_HP_MASTER = 2500;
+static constexpr int MAX_HP_SLAVE = 100;
 
 /////////////        Slave2        ////////////////
 
@@ -24,8 +29,12 @@ namespace MyGameProject
 	{
 		Real distance;
 		Real angle;
-		Slave2MemberVars(Real _distance, Real _angle) :distance(_distance), angle(_angle) {}
-		Slave2MemberVars(void) :distance(0.f), angle(0.f) {}
+		Real rot{0};
+		Real max_distance{0};
+		HistoryReserver<10, Point2D, Real> history;
+		Slave2MemberVars(Real _distance, Real _angle) :distance(_distance), angle(_angle), history() {}
+		Slave2MemberVars(void) :distance(0.f), angle(0.f), history() {}
+		STATIC_IMAGE_HANDLER(slave_img)
 	};
 }
 
@@ -35,7 +44,8 @@ MyGameProject::Master2::Slave2::Slave2
 	SEManager& _se_manager,
 	const Player& _player,
 	gp::smart_ptr<Master2> _master,
-	decltype(vars) _vars
+	decltype(vars) _vars,
+	Real _max_distance
 )
 	:MobEnemy
 	(
@@ -54,6 +64,7 @@ MyGameProject::Master2::Slave2::Slave2
 				{
 					vars->angle = _vars->angle;
 					vars->distance = _vars->distance;
+					vars->history.initialize(_this.pos(), angle_of(_this.velocity()));
 					if (_master)
 					{
 						_this.pos() = _master->pos();
@@ -63,36 +74,79 @@ MyGameProject::Master2::Slave2::Slave2
 				{
 					if (_master)
 					{
-						Point2D relative_pos(1.5f * vars->distance * std::cos(vars->angle), 0.5f * vars->distance * std::sin(vars->angle));
+						const auto pre_pos{ _this.pos() };
+						const auto pre_dir{angle_of(_this.velocity())};
+						Point2D relative_pos(1.0f * vars->distance * std::cos(vars->angle), 1.0f * vars->distance * std::sin(vars->angle));
 						_this.pos() = _master->pos() + relative_pos;
 						vars->angle += 0.06f;
-						if(vars->distance < 120) {vars->distance += 0.5f;}
+						if (count > 150)
+						{
+							if (count % 30 == 0)
+							{
+								try
+								{
+									*find_vacant_object(SharedObject::bullets()) = Bullet::create("B2", _this, _player, _this.pos(), angle_of(_master->pos() - _this.pos()), straight_course(2));
+								}
+								catch (...) {}
+							}
+						}
+						if(vars->distance < vars->max_distance) {vars->distance += vars->max_distance / 100;}
+						vars->history.shift_forward(std::move(pre_pos), std::move(pre_dir));
 					}
 				}
 			}
 		),
-		MAX_HP_MASTER,
+		MAX_HP_SLAVE,
 		Class::SMALL,
 		_player,
 		ShapeElement::Circle(20)
 	),
 	master(_master),
 	vars(gp::make_smart<Slave2MemberVars>())
-{}
+{
+	vars->max_distance = _max_distance;
+}
 
 void MyGameProject::Master2::Slave2::accessory_custom_updater(void)
 {
 	if (master && !master->get_flag()) { set_flag_off(); }
+	else
+	{
+		vars->rot += 0.15f;
+	}
 }
 
 void MyGameProject::Master2::Slave2::draw(void) const
 {
-	gp::SetDrawBlendModeOf
-	(
-		gp::DrawCircle(static_cast<Real>(pos().x()), static_cast<Real>(pos().y()), 15, gp::black.get()),
-		DX_BLENDMODE_ALPHA,
-		static_cast<int>((255 - 80) - 80 * std::sin(vars->angle))
-	);
+	//gp::SetDrawBlendModeOf
+	//(
+	//	//gp::DrawCircle(static_cast<Real>(pos().x()), static_cast<Real>(pos().y()), 15, gp::black.get()),
+	//	gp::DrawRotaGraphF(gp::level(10), pos().x(), pos().y(), 1.0, vars->rot, Slave2MemberVars::slave_img(), true),
+	//	DX_BLENDMODE_ALPHA,
+	//	static_cast<int>((255 - 80) - 80 * std::sin(vars->angle))
+	//);
+		const auto& history{vars->history};
+		for (int i = 0; i != history.size(); ++i)
+		{
+			gp::DrawRotaGraphF
+			(
+				gp::level(10), 
+				get<0>(history[i]).x(), get<0>(history[i]).y(), (vars->history.size() - static_cast<float>(i)) / vars->history.size(), get<1>(history[0]),
+				Slave2MemberVars::slave_img(), true
+			);
+			if (i < history.size() - 1)
+			{
+				gp::DrawRotaGraphF
+				(
+					gp::level(10), 
+					(get<0>(history[i]).x() + get<0>(history[i + 1]).x()) / 2,
+					(get<0>(history[i]).y() + get<0>(history[i + 1]).y()) / 2,
+					(vars->history.size() - static_cast<float>(i + 0.5f)) / vars->history.size(),
+					get<1>(history[0]),
+					Slave2MemberVars::slave_img(), true
+				);
+			}
+		}
 	if (master) {gp::DrawLine(pos().x(), pos().y(), master->pos().x(), master->pos().y(), gp::black.get()); }
 }
 
@@ -122,20 +176,25 @@ void MyGameProject::Master2::accessory_custom_updater(void)
 {
 	if (get_count() == 0)
 	{
-		if (enemies)
+		static constexpr int SLAVE_NUM = 10;
+		for (int i = 0; i != SLAVE_NUM; ++i)
 		{
-			static constexpr int SLAVE_NUM = 10;
-			for (int i = 0; i != SLAVE_NUM; ++i)
+			for (int j = 0; j != 4; ++j)
 			{
-				*find_vacant_object(*enemies) =
-				gp::make_smart<Slave2>
-				(
-					get_bullets_ref(),
-					get_se_manager_ref(),
-					player_ref(),
-					shared_from_this(),
-					gp::make_smart<Slave2MemberVars>(0, i * boost::math::constants::two_pi<Real>() / SLAVE_NUM)
-				);
+				auto temp
+				{
+					gp::make_smart<Slave2>
+					(
+						get_bullets_ref(),
+						get_se_manager_ref(),
+						player_ref(),
+						shared_from_this(),
+						gp::make_smart<Slave2MemberVars>(0, j * two_pi<Real>() / 12 + i * boost::math::constants::two_pi<Real>() / SLAVE_NUM),
+						200 + 40 * j
+					)
+				};
+				*find_vacant_object(SharedObject::enemies()) = temp;
+				*find_vacant_object(SharedObject::mob_enemies()) = std::move(temp);
 			}
 		}
 	}
@@ -147,14 +206,45 @@ void MyGameProject::Master2::accessory_custom_updater(void)
 	}
 }
 
+enum class Direction
+{
+	RIGHT = 2,
+	LEFT = 3,
+};
+
+inline constexpr auto dir2int(Direction _dir) { return static_cast<int>(_dir); }
+
 void MyGameProject::Master2::draw(void) const
 {
-	gp::DrawCircle(pos().x(), pos().y(), 20, gp::black.get());
+	const auto vx{ velocity().x() };
+	if (vx > 0.2)
+	{
+		gp::DrawRotaGraphF(gp::level(11), pos().x(), pos().y(), 0.5, 0.0, img()[dir2int(Direction::RIGHT)], true);
+	}
+	else if(vx < -0.2)
+	{
+		gp::DrawRotaGraphF(gp::level(11), pos().x(), pos().y(), 0.5, 0.0, img()[dir2int(Direction::LEFT)], true);
+	}
+	else
+	{
+		gp::DrawRotaGraphF(gp::level(11), pos().x(), pos().y(), 0.5, 0.0, img()[get_count() % 30 > 15], true);
+	}
 }
 
 void MyGameProject::Master2::preperation(void)
 {
 	Slave2::preperation();
+	ImagePool::add("../../data/img/zako0.png");
+	img()[0] = ImagePool::get("../../data/img/zako0.png");
+	ImagePool::add("../../data/img/zako1.png");
+	img()[1] = ImagePool::get("../../data/img/zako1.png");
+	ImagePool::add("../../data/img/zako_migi.png");
+	img()[2] = ImagePool::get("../../data/img/zako_migi.png");
+	ImagePool::add("../../data/img/zako_hidari.png");
+	img()[3] = ImagePool::get("../../data/img/zako_hidari.png");
+
+	ImagePool::add("../../data/img/dark_force.png");
+	Slave2MemberVars::slave_img() = ImagePool::get("../../data/img/dark_force.png");
 }
 
 MyGameProject::Master2::~Master2(void) {}

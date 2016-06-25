@@ -2,35 +2,37 @@
 #include "dxlib.h"
 #include <chrono>
 #include <array>
+#include <thread>
 
 namespace
 {
 	using namespace std::chrono;
-	const auto EPOCH = system_clock::time_point();
+	const auto EPOCH = high_resolution_clock::time_point();
 	milliseconds sum;
+	using namespace std::literals;
 }
 
 void gp::fps_wait(void)
 {
 	static int fps_count(0);
-	const system_clock::time_point gnt = system_clock::now();
+	const auto gnt = high_resolution_clock::now();
 	milliseconds term(0);
-	static system_clock::time_point t,count0t; //Default constructor, creates a time_point with a value of Clock's epoch.
+	static high_resolution_clock::time_point t,count0t; //Default constructor, creates a time_point with a value of Clock's epoch.
 	static std::array<milliseconds,gp::FLAME> dts;
 
 	if (fps_count == 0)
 	{
 		if (t != EPOCH)
 		{
-			term = duration_cast<milliseconds>(count0t - system_clock::now()) + milliseconds(1000);
+			term = duration_cast<milliseconds>(count0t - high_resolution_clock::now()) + milliseconds(1000);
 		}
 	}
 	else
 	{
-		term = duration_cast<milliseconds>(count0t - system_clock::now()) + milliseconds(fps_count * (1000 / FLAME));
+		term = duration_cast<milliseconds>(count0t - high_resolution_clock::now()) + milliseconds(fps_count * (1000 / FLAME));
 	}
 
-	if (term > milliseconds(0)){ Sleep(static_cast<DWORD>(term.count())); }
+	if (term > 0ms){ std::this_thread::sleep_for(term); }
 
 	if (fps_count == 0){count0t = gnt;}
 
@@ -38,7 +40,7 @@ void gp::fps_wait(void)
 
 	if (fps_count == gp::FLAME - 1)
 	{
-		sum = milliseconds(0);
+		sum = 0ms;
 		for (auto dt : dts){ sum += dt; }
 	}
 

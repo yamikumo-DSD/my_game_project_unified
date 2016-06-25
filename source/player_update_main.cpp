@@ -11,6 +11,7 @@
 #include "player_vars.h"
 #include "locked_marker.h"
 #include "debug_value.h"
+#include "shared_object.h"
 
 namespace MyGameProject
 {
@@ -29,6 +30,8 @@ namespace MyGameProject
 	void Player::update(void)
 	{
 		using namespace boost::math::constants;
+
+		vars->log_direction_of_options << vars->onmyo_damas[0].direction << std::endl;;
 
 		if (count == 0){ for (auto& p : trail){ p = pos(); } }
 		else
@@ -56,11 +59,13 @@ namespace MyGameProject
 			if (right_input && warp_destination.x() < WW<Real>()){ warp_destination += Point2D(speed, 0); }
 			if (left_input && warp_destination.x() > 0)          { warp_destination += Point2D(-speed, 0); }
 
+			warp_charge = warp_charge > 0 ? warp_charge - 3 : 0;
+
 			--warp_count;
 		}
 		else if (current_state == State::WARP_MOTION)
 		{
-			if (warp_destination == pos()){ current_state = State::NORMAL; }
+			if (norm(warp_destination - pos()) < 2.f) { current_state = State::NORMAL;}
 			else
 			{
 				pos() = pos() + v_warp;
@@ -115,15 +120,16 @@ namespace MyGameProject
 		//Deal with shots
 		if (weapon() == WeaponType::SHORT_RANGE || weapon() == WeaponType::HYPER_SHORT_RANGE)
 		{
-			if (vars->radius <= 200.f) { vars->radius += 10; }
-			else { vars->radius = 200.f; }
+			if (vars->radius < PlayerVars::MAX_RADIUS) { vars->radius += 10; }
+			else { vars->radius = PlayerVars::MAX_RADIUS; }
 
 			auto& locking_count = vars->short_range_weapon_count;
 			if (locking_count == 5)
 			{
 				for (int i = 0; i != vars->locked_enemy_list.size(); ++i)
 				{
-					const auto& enemy = enemies[i];
+					//const auto& enemy = enemies[i];
+					const auto& enemy = SharedObject::enemies()[i];
 					if (enemy && enemy->get_flag() && is_lockable(*enemy))
 					{
 						if (norm(pos() - enemy->pos()) <= vars->radius)
@@ -132,7 +138,8 @@ namespace MyGameProject
 							{
 								++vars->locked_enemy_list[i].m;
 								++vars->number_of_locked_enemies;
-								vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(enemies[i], vars->locked_enemy_list[i].m);
+								//vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(enemies[i], vars->locked_enemy_list[i].m);
+								vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(SharedObject::enemies()[i], vars->locked_enemy_list[i].m);
 								erect_se_flag_of("../../data/sound/button04a.mp3"); 
 							}
 						}
@@ -148,7 +155,8 @@ namespace MyGameProject
 			{
 				for (int i = 0; i != vars->locked_enemy_list.size(); ++i)
 				{
-					const auto& enemy = enemies[i];
+					//const auto& enemy = enemies[i];
+					const auto& enemy = SharedObject::enemies()[i];
 					if (enemy && enemy->get_flag() && is_lockable(*enemy))
 					{
 						if (norm(pos() - enemy->pos()) <= vars->radius)
@@ -157,7 +165,8 @@ namespace MyGameProject
 							{
 								++vars->locked_enemy_list[i].m;
 								++vars->number_of_locked_enemies;
-								vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(enemies[i], vars->locked_enemy_list[i].m);
+								//vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(enemies[i], vars->locked_enemy_list[i].m);
+								vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(SharedObject::enemies()[i], vars->locked_enemy_list[i].m);
 								erect_se_flag_of("../../data/sound/button04a.mp3"); 
 							}
 						}
@@ -173,7 +182,8 @@ namespace MyGameProject
 			{
 				for (int i = 0; i != vars->locked_enemy_list.size(); ++i)
 				{
-					const auto& enemy = enemies[i];
+					//const auto& enemy = enemies[i];
+					const auto& enemy = SharedObject::enemies()[i];
 					if (enemy && enemy->get_flag() && is_lockable(*enemy))
 					{
 						if (norm(pos() - enemy->pos()) <= vars->radius)
@@ -183,7 +193,8 @@ namespace MyGameProject
 							{
 								++vars->locked_enemy_list[i].m;
 								++vars->number_of_locked_enemies;
-								vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(enemies[i], vars->locked_enemy_list[i].m);
+								//vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(enemies[i], vars->locked_enemy_list[i].m);
+								vars->locked_enemy_marker_list[i] = gp::make_smart<LockedMarker>(SharedObject::enemies()[i], vars->locked_enemy_list[i].m);
 								erect_se_flag_of("../../data/sound/button04a.mp3"); 
 							}
 						}
@@ -198,11 +209,12 @@ namespace MyGameProject
 			}
 
 			++locking_count;
-		}
+		} //if (weapon() == WeaponType::SHORT_RANGE || weapon() == WeaponType::HYPER_SHORT_RANGE)
 		else { vars->radius = 0.f;}
 
 		if (vars->is_short_range_weapon_released)
 		{ 
+			if (vars->number_of_locked_enemies > 0) { erect_se_flag_of("../../data/sound/laser_released.wav"); }
 			vars->short_range_weapon_count = 0;
 			int n = 0;
 			for (int i = 0; i != vars->locked_enemy_list.size(); ++i)
@@ -214,18 +226,18 @@ namespace MyGameProject
 					if (hyper_mode)
 					{
 						*find_vacant_object(shots) =
-							std::make_shared<HomingShot2>(enemies[i], n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos());
+							std::make_shared<HomingShot2>(SharedObject::enemies()[i], n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos(), vars->number_of_locked_enemies);
 					}
 					else
 					{
 						*find_vacant_object(shots) =
-							std::make_shared<HomingLazer2>(enemies[i], n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos());
+							std::make_shared<HomingLazer2>(SharedObject::enemies()[i], n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos(), vars->number_of_locked_enemies);
 					}
 				}
 			}
 			vars->number_of_locked_enemies = 0;
 			for (auto& locked_marker : vars->locked_enemy_marker_list) { locked_marker.reset(); }
-		}
+		} //if (vars->is_short_range_weapon_released)
 
 		if (shot_if())
 		{
@@ -243,7 +255,7 @@ namespace MyGameProject
 					}
 				}
 			} 
-			if (count % 6 == 0){ erect_se_flag_of("../../data/sound/shot.mp3"); }
+			if (count % 6 == 0 && weapon() != WeaponType::SHORT_RANGE && weapon() != WeaponType::HYPER_SHORT_RANGE){ erect_se_flag_of("../../data/sound/shot2.wav"); }
 		}
 
 		for (auto& onmyo_dama : vars->onmyo_damas)
@@ -257,7 +269,12 @@ namespace MyGameProject
 			else { marker.reset(); }
 		}
 
+		vars->is_hyper_mode = hyper_mode;
+
+		vars->hyper_start_effect.update();
+
+		++vars->count;
 		++count;
-	}
-}
+	} //Player::update
+} //namespace MyGameProject
 

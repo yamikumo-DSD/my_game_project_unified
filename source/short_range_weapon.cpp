@@ -1,5 +1,6 @@
 //short_range_weapon.cpp
 
+#if 0
 #include "short_range_weapon.h"
 #include <boost/math/constants/constants.hpp>
 #include "image_pool.h"
@@ -55,3 +56,4 @@ void MyGameProject::ShortRangeWeapon::preperation(void)
 	//Load images.
 	ImagePool::add("../../data/img/magical_circle.png");
 }
+#endif

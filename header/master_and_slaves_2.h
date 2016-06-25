@@ -3,6 +3,7 @@
 #pragma once
 
 #include "mob_enemy.h"
+#include "decl_static_image_handler.h"
 
 namespace MyGameProject
 {
@@ -24,7 +25,8 @@ namespace MyGameProject
 				SEManager& _se_manager,
 				const Player& _player,
 				gp::smart_ptr<Master2> _master,
-				decltype(vars) _vars
+				decltype(vars) _vars,
+				Real _max_distance = 120.f
 			);
 			virtual void draw(void) const override final;
 			static void preperation(void);
@@ -44,6 +46,7 @@ namespace MyGameProject
 			std::vector<gp::smart_ptr<Enemy>>& _enemies
 		);
 		virtual void draw(void) const override final;
+		STATIC_IMAGE_HANDLER_LIST(img, 4)
 		static void preperation(void);
 		virtual ~Master2(void);
 	};

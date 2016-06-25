@@ -6,10 +6,12 @@
 #include "color.h"
 #include "dxsstream.h"
 #include "image_pool.h"
+#include "ranged_uniform_random.h"
+#include "se_manager.h"
 
 namespace
 {
-	constexpr int MAX_HP = 70;
+	constexpr int MAX_HP = 30;
 }
 
 MyGameProject::Crow2::Crow2
@@ -28,21 +30,22 @@ void MyGameProject::Crow2::draw(void) const
 	const auto direction = vy > 0 ? boost::math::constants::pi<Real>() : 0;
 	if (vx > 0)
 	{
-		gp::DrawRotaGraph(pos().x(), pos().y(), 0.15, direction, ImagePool::get("../../data/img/crow.png@2"), TRUE);
+		gp::DrawRotaGraph(gp::level(12), pos().x(), pos().y(), 0.15, direction, ImagePool::get("../../data/img/crow.png@2"), TRUE);
 	}
 	else if (vx == 0)
 	{ 
-		gp::DrawRotaGraph(pos().x(), pos().y(), 0.15, direction, ImagePool::get("../../data/img/crow.png@1"), TRUE); 
+		gp::DrawRotaGraph(gp::level(12), pos().x(), pos().y(), 0.15, direction, ImagePool::get("../../data/img/crow.png@1"), TRUE); 
 	}
 	else
 	{
-		gp::DrawRotaGraph(pos().x(), pos().y(), 0.15, direction, ImagePool::get("../../data/img/crow.png@0"), TRUE); 
+		gp::DrawRotaGraph(gp::level(12), pos().x(), pos().y(), 0.15, direction, ImagePool::get("../../data/img/crow.png@0"), TRUE); 
 	}
 }
 
 void MyGameProject::Crow2::accessory_custom_updater(void)
 {
 	const auto x = pos().x(), y = pos().y();
+	const auto count{get_count()};
 	if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
 	{
 		set_flag_off();

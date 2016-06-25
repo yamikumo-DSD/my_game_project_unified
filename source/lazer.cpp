@@ -20,6 +20,7 @@ namespace MyGameProject
 		Real length;
 		Real angle;
 		Real duration;
+		Real glow_speed;
 		std::function<void(const Bullet&, Real&)> angle_changer;
 		static int& tex(void) { static int img = 0; return img; }
 		static int& tex0(void) { static int img = 0; return img; }
@@ -39,7 +40,8 @@ namespace MyGameProject
 		Real _initial_angle,
 		Behavior _behavior,
 		Real _max_width,
-		int _duration
+		int _duration,
+		Real _grow_speed
 	)
 		:Bullet(_master,_player, _initial_pos, _initial_angle, ShapeElement::Null(), _behavior),
 		vars(std::make_unique<LazerImple>(*this))
@@ -48,6 +50,7 @@ namespace MyGameProject
 		vars->length = 0;
 		vars->angle = _initial_angle;
 		vars->duration = _duration;
+		vars->glow_speed = _grow_speed;
 	}
 
 	Lazer::Lazer
@@ -59,7 +62,8 @@ namespace MyGameProject
 		Behavior _behavior,
 		Real _max_width,
 		int _duration,
-		std::function<void(const Bullet&, Real&)> _f
+		std::function<void(const Bullet&, Real&)> _f,
+		Real _grow_speed
 	)
 		:Bullet(_master,_player, _initial_pos, _initial_angle, ShapeElement::Null(), _behavior),
 		vars(std::make_unique<LazerImple>(*this))
@@ -69,6 +73,7 @@ namespace MyGameProject
 		vars->angle = _initial_angle;
 		vars->duration = _duration;
 		vars->angle_changer = _f;
+		vars->glow_speed = _grow_speed;
 	}
 
 	void Lazer::custom_updater(void)
@@ -84,18 +89,18 @@ namespace MyGameProject
 		if (count == 0) {}
 		else
 		{
-			if (length <= 1000) { length += 10; }
+			if (length <= 1000) { length += vars->glow_speed; }
 			area().get_physical_state().angle = half_pi<Real>() - angle;
 			area().get_physical_state().p = pos();
 
 			ShapeElement::Polygon rect;
-			rect.outer().push_back(Point2D(+half_width, 0));
-			rect.outer().push_back(Point2D(-half_width, 0));
-			rect.outer().push_back(Point2D(-half_width, length));
-			rect.outer().push_back(Point2D(+half_width, length));
-			rect.outer().push_back(Point2D(+half_width, 0));
+			rect.outer().emplace_back(+half_width, 0);
+			rect.outer().emplace_back(-half_width, 0);
+			rect.outer().emplace_back(-half_width, length);
+			rect.outer().emplace_back(+half_width, length);
+			rect.outer().emplace_back(+half_width, 0);
 
-			area().get_shape() = rect;
+			area().get_shape() = std::move(rect);
 
 			if (count > vars->duration)
 			{
@@ -104,7 +109,7 @@ namespace MyGameProject
 			}
 
 			vars->tex_scroll_count += 15;
-			vars->tex0_scroll_count += 20;
+			vars->tex0_scroll_count += 30;
 		}
 	}
 
@@ -135,9 +140,11 @@ namespace MyGameProject
 		using namespace gp;
 		gp::SetDrawScreenOf
 		(
+			gp::DrawGraph(0, (vars->tex_scroll_count  % image_hight) + image_hight, tex, true) >>
 			gp::DrawGraph(0,  vars->tex_scroll_count  % image_hight,                tex , true) >>
 			gp::DrawGraph(0, (vars->tex_scroll_count  % image_hight) - image_hight, tex , true) >>
 			gp::DrawGraph(0, (vars->tex_scroll_count  % image_hight) - 2 * image_hight, tex , true) >>
+			gp::DrawGraph(0, (vars->tex0_scroll_count % image_hight) + image_hight, tex0, true) >>
 			gp::DrawGraph(0,  vars->tex0_scroll_count % image_hight,                tex0, true) >>
 			gp::DrawGraph(0, (vars->tex0_scroll_count % image_hight) - image_hight, tex0, true) >>
 			gp::DrawGraph(0, (vars->tex0_scroll_count % image_hight) - 2 * image_hight, tex0, true),

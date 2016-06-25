@@ -27,6 +27,7 @@ namespace MyGameProject
 				decltype(vars) _vars
 			);
 			virtual void draw(void) const override final;
+			virtual int released_p_item_num(void) const override final;
 			static void preperation(void);
 			virtual ~Slave(void);
 		};

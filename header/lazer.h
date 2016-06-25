@@ -24,7 +24,8 @@ namespace MyGameProject
 			Real _initial_angle,
 			Behavior _behavior,
 			Real _max_width = 50.f,
-			int _duration = 300
+			int _duration = 300,
+			Real _grow_speed = 10.f
 		);
 		Lazer
 		(
@@ -35,7 +36,8 @@ namespace MyGameProject
 			Behavior _behavior,
 			Real _max_width,
 			int _duration,
-			std::function<void(const Bullet&, Real&)> _f //function to change angle. first arg: laser itself, second arg: laser's angle
+			std::function<void(const Bullet&, Real&)> _f, //function to change angle. first arg: laser itself, second arg: laser's angle
+			Real _grow_speed = 10.f
 		);
 		virtual void draw(void) const;
 		virtual void hit(void);

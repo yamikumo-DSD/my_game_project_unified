@@ -26,6 +26,10 @@ gp::smart_ptr<MyGameProject::Bullet> MyGameProject::Bullet::create
 	if (_name == "HenyoriElementOrange"){ return gp::make_smart<HenyoriElementOrange>(_master, _player, _initial_pos, _initial_angle, _behavior); }
 	if (_name == "CameraFrame"){ return gp::make_smart<CameraFrame>(_master, _player, _initial_pos, _initial_angle, _behavior); }
 	if (_name == "B0"){ return gp::make_smart<B0>(_master, _player, _initial_pos, _initial_angle, _behavior); }
+	if (_name == "B1"){ return gp::make_smart<B1>(_master, _player, _initial_pos, _initial_angle, _behavior); }
+	if (_name == "B2"){ return gp::make_smart<B234<2>>(_master, _player, _initial_pos, _initial_angle, _behavior); }
+	if (_name == "B3"){ return gp::make_smart<B234<3>>(_master, _player, _initial_pos, _initial_angle, _behavior); }
+	if (_name == "B4"){ return gp::make_smart<B234<4>>(_master, _player, _initial_pos, _initial_angle, _behavior); }
 	else{ throw std::runtime_error("Undefined type of bullet."); }
 }
 
@@ -105,4 +109,8 @@ void MyGameProject::Bullet::preperation(void)
 	CameraFrame::preperation();
 	Lazer::preperation();
 	B0::preperation();
+	B1::preperation();
+	B234<2>::preparation();
+	B234<3>::preparation();
+	B234<4>::preparation();
 }

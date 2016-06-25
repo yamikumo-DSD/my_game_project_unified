@@ -7,3 +7,4 @@
 #include <cstdio>
 #include "msgbox.h"
 #include <boost/lexical_cast.hpp>
+#include "debug_value.h"

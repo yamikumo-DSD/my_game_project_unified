@@ -1,5 +1,7 @@
 //environmental_constants
 
+#pragma once
+
 namespace MyGameProject
 {
 	template<class Type>

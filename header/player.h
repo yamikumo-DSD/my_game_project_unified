@@ -75,7 +75,7 @@ namespace MyGameProject
 		void update_mode(void);
 		WeaponType weapon(void) const;
 		State state(void) const;
-		void hit(void);
+		bool hit(void);
 		void charge_warp_point(int _point);
 		bool is_hyper_mode(void) const;
 		int rest_hyper_mode_time(void) const;

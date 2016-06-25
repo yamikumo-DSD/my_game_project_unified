@@ -1,5 +1,7 @@
 //hyper_mode_back.cpp
 
+#if 0
+
 #include "hyper_mode_back.h"
 #include "draw_order.h"
 #include "dxlib_wrapper.h"
@@ -105,3 +107,4 @@ void MyGameProject::HyperModeBack::preperation(void)
 }
 
 MyGameProject::HyperModeBack::~HyperModeBack(void){}
+#endif

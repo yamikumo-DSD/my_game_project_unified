@@ -16,6 +16,7 @@
 
 
 using namespace std;
+using namespace MyGameProject;
 
 MyVM::RepeatableVM::RepeatableVM
 (
@@ -56,26 +57,6 @@ MyVM::RepeatableVM::RepeatableVM(void)
 	pc_to_return()
 { }
 
-void MyVM::RepeatableVM::reset
-(
-	const ConstantPool& _constant_pool,
-	const CodeList& _code_list
-)
-{
-	constant_pool = _constant_pool;
-	code_list = _code_list;
-	continue_flag = true;
-	frame_stack = decltype(frame_stack)();
-	active_method_info = SymbolicReference("void", "main", {});
-	invoker_info = decltype(invoker_info)();
-	pc_to_return = decltype(pc_to_return)();
-
-	frame_stack.push(Frame(code_list["main"].reserved_stack_size, code_list["main"].size_of_local_variables));
-	pc = code_list["main"].bytecode.begin();
-	invoker_info.push(SymbolicReference("void", "system", {}));
-
-}
-
 void MyVM::RepeatableVM::execute(void)
 {
 	if (continue_flag)
@@ -110,15 +91,39 @@ void MyVM::RepeatableVM::execute(void)
 							*frame_stack.top().get_sp() = BitCalculation::bit_cast<Word>(val);
 							frame_stack.top().advance_sp(1);
 						}
-						else if (type == typeid(float))
+						else if (type == typeid(jfloat))
 						{
-							auto val = get<float>(constant_pool[get_pc()[1]]);
+							auto val = get<jfloat>(constant_pool[get_pc()[1]]);
 							*frame_stack.top().get_sp() = BitCalculation::bit_cast<Word>(val);
 							frame_stack.top().advance_sp(1);
+						}
+						else
+						{
+							
 						}
 					}
 					advance_pc(2);
 					break;
+				case Instruction::LDC_W:
+				{
+					BitCalculation::T2Byte<Short> index;
+					index.field._1 = get_pc()[1];
+					index.field._0 = get_pc()[2];
+					std::type_index type = constant_pool[index.t].type();
+					if (type == typeid(jint))
+					{
+						auto val( boost::get<jint>(constant_pool[index.t]) );
+						*frame_stack.top().get_sp() = BitCalculation::bit_cast<Word>(val);
+						frame_stack.top().advance_sp(1);
+					}
+					else if (type == typeid(jfloat))
+					{
+						auto val( boost::get<jfloat>(constant_pool[index.t]) );
+						*frame_stack.top().get_sp() = BitCalculation::bit_cast<Word>(val);
+						frame_stack.top().advance_sp(1);
+					}
+					advance_pc(3);
+				}break;
 				case Instruction::ILOAD:
 					*frame_stack.top().get_sp() = frame_stack.top()[get_pc()[1]];
 					frame_stack.top().advance_sp(1);

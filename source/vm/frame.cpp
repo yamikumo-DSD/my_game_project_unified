@@ -6,6 +6,7 @@
 #include "bit_calculation.h"
 #include <iterator>
 #include "express_debug.h"
+#include "debug.h"
 
 MyVM::Frame::Frame
 (

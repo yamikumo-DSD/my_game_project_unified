@@ -15,7 +15,7 @@ namespace MyGameProject
 		const Player& _player
 	)
 	:Boss(_bullets, _items, _se_flag_setter, Point2D(0, 0), 0, _player, ShapeElement::Circle(20)),
-	health(20000),
+	health(15000),
 	change_play_speed(_play_speed_changer),
 	immortal_flag(true),
 	imple(std::make_unique<AyaImple>(*this))
@@ -52,4 +52,9 @@ namespace MyGameProject
 	}
 
 	int Aya::get_health(void) const { return health; }
+
+	BackGroundControl::OptionalSignal Aya::notify(void) const noexcept
+	{
+		return imple->notify();
+	}
 }

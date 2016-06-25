@@ -10,6 +10,9 @@
 #include "lazer.h"
 #include "bullet.h"
 #include "bullet_behavior.h"
+#include "debug.h"
+#include "shared_object.h"
+#include "border_check.h"
 
 namespace MyGameProject
 {
@@ -59,7 +62,7 @@ namespace MyGameProject
 			//aliasses
 			auto& pos = boss.pos();
 			const auto& player = boss.player_ref();
-			auto& bullets = boss.get_bullets_ref();
+			auto& bullets = SharedObject::bullets();
 
 			static const auto relative_battery_pos_0 = Point2D(75, -100);
 			static const auto relative_battery_pos_1 = Point2D(-75, -100);
@@ -120,6 +123,7 @@ namespace MyGameProject
 					{
 						*find_vacant_object(bullets) = std::make_shared<Lazer>(boss, player, pos + relative_battery_pos_0, angle_of(player.pos() - (pos + relative_battery_pos_0)), [](Bullet& _b) {}, 50, 90);
 						*find_vacant_object(bullets) = std::make_shared<Lazer>(boss, player, pos + relative_battery_pos_1, angle_of(player.pos() - (pos + relative_battery_pos_1)), [](Bullet& _b) {}, 50, 90);
+						boss.erect_se_flag_of("../../data/sound/launcher1.mp3");
 					}
 				}
 			}
@@ -144,6 +148,7 @@ namespace MyGameProject
 					INIT_V;
 					*find_vacant_object(bullets) = std::make_shared<Lazer>(boss, player, pos + relative_battery_pos_0, -half_pi<Real>(), [](Bullet& _b) {}, 50, 90, [](const Bullet& _b, Real& _angle) {if (_b.get_count() >= 20) { _angle += 0.04; } });
 					*find_vacant_object(bullets) = std::make_shared<Lazer>(boss, player, pos + relative_battery_pos_1, -half_pi<Real>(), [](Bullet& _b) {}, 50, 90, [](const Bullet& _b, Real& _angle) {if (_b.get_count() >= 20) { _angle -= 0.04; } });
+					boss.erect_se_flag_of("../../data/sound/launcher1.mp3");
 				}
 				else
 				{
@@ -155,6 +160,7 @@ namespace MyGameProject
 					else if (count_100 >= 70 && count_100 < 80) { left_wing_index = right_wing_index = 2; }
 					else if (count_100 >= 80 && count_100 < 90) { left_wing_index = right_wing_index = 1; }
 					else { left_wing_index = right_wing_index = 0; }
+					if (count_100 == 50) { boss.erect_se_flag_of("../../data/sound/stroke.wav"); }
 
 				}
 			}
@@ -166,6 +172,7 @@ namespace MyGameProject
 					*find_vacant_object(bullets) = gp::make_smart<Invisible>(boss, player, T3);
 					INIT_V;
 					left_wing_index = right_wing_index = 3;
+					boss.erect_se_flag_of("../../data/sound/rocket_going.wav");
 				}
 				else
 				{
@@ -191,6 +198,7 @@ namespace MyGameProject
 						static constexpr Real SPEED = 15;
 						v = SPEED * P(cos(dir), sin(dir));
 						img_angle = dir + half_pi<Real>();
+						boss.erect_se_flag_of("../../data/sound/rocket_going.wav");
 					}
 
 					if (phase_count % 10 == 0)
@@ -198,10 +206,14 @@ namespace MyGameProject
 						static constexpr Real N = 10;
 						for (int i = 0; i != N; ++i)
 						{
-							*find_vacant_object(bullets)
-								= Bullet::create("B0", boss, player, pos, i * two_pi<Real>() / N, straight_course(6));
-							*find_vacant_object(bullets)
-								= Bullet::create("B0", boss, player, pos, i * two_pi<Real>() / N, straight_course(3));
+							if (is_within_window(boss.pos()))
+							{
+								*find_vacant_object(bullets)
+									= Bullet::create("B0", boss, player, pos, i * two_pi<Real>() / N, straight_course(6));
+								*find_vacant_object(bullets)
+									= Bullet::create("B0", boss, player, pos, i * two_pi<Real>() / N, straight_course(3));
+								boss.erect_se_flag_of("../../data/sound/enemy_shot_01.wav");
+							}
 						}
 					}
 				}
@@ -232,6 +244,7 @@ namespace MyGameProject
 						else if (count_100 >= 70 && count_100 < 80) { left_wing_index = right_wing_index = 2; }
 						else if (count_100 >= 80 && count_100 < 90) { left_wing_index = right_wing_index = 1; }
 						else { left_wing_index = right_wing_index = 0; }
+						if (count_100 == 50) { boss.erect_se_flag_of("../../data/sound/stroke.wav"); }
 					}
 				}
 			}
@@ -260,6 +273,7 @@ namespace MyGameProject
 							*find_vacant_object(bullets)
 								= Bullet::create("B0", boss, player, pos, i * two_pi<Real>() / N, straight_course(3));
 						}
+						boss.erect_se_flag_of("../../data/sound/dive2.wav");
 					}
 				}
 			}

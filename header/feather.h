@@ -22,8 +22,10 @@ namespace MyGameProject
 			Behavior _behavior
 			);
 		virtual void draw(void) const;
+		virtual bool is_resistant(void) const override final { return true; }
 		virtual ~Feather(void);
 		static void preperation(void);
+		virtual void hit(void) override final;
 	};
 }
 

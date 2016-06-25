@@ -9,28 +9,31 @@
 #include "is_debug_mode.h"
 #include "scene_manager.h"
 
-void MyGameProject::GameMain::draw(void) const
+namespace MyGameProject
 {
-	scene->draw();
+	void GameMain::draw(void) const
+	{
+		scene->draw();
 #if DEBUG_MODE
-	draw_glid(50);
-	draw_fps();
+		draw_glid(50);
+		draw_fps();
 #endif
-}
-
-void MyGameProject::GameMain::draw_fps(void) const
-{
-	gp::DX_SStream(5, 460) << std::setprecision(3) << gp::blue << gp::get_fps() << "fps" << gp::end;
-}
-
-void MyGameProject::GameMain::draw_glid(int _interval) const
-{
-	for (int i = 0; i < 640;i += _interval)
-	{
-		DrawLine(i,0,i,480,gp::white.get());
 	}
-	for (int i = 0; i < 480; i += _interval)
+
+	void GameMain::draw_fps(void) const
 	{
-		DrawLine(0,i,640,i, gp::white.get());
+		gp::DX_SStream(5, 460) << std::setprecision(3) << gp::blue << gp::get_fps() << "fps" << gp::end;
 	}
-}
+
+	void GameMain::draw_glid(int _interval) const
+	{
+		for (int i = 0; i < 640; i += _interval)
+		{
+			DrawLine(i, 0, i, 480, gp::white.get());
+		}
+		for (int i = 0; i < 480; i += _interval)
+		{
+			DrawLine(0, i, 640, i, gp::white.get());
+		}
+	}
+} //namespace MyGameProject

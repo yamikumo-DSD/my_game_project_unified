@@ -34,7 +34,7 @@ namespace MyGameProject
 		//wave3:
 		void wave3(void);
 		Real phi1,phi2;
-		gp::smart_ptr<Bullet> camera_frame;
+		std::weak_ptr<Bullet> camera_frame;
 		Point2D shuttered_point;
 		bool white_out_flag;
 		//wave4:

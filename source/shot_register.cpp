@@ -1,5 +1,5 @@
 //shot_register.cpp
-
+#if 0
 #include "play_game.h"
 #include "player.h"
 #include "short_range_weapon.h"
@@ -94,3 +94,4 @@ void MyGameProject::PlayGame::shot_register(void)
 		else{ if (short_range_weapon){ short_range_weapon.reset(); } }
 	}
 }
+#endif

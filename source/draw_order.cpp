@@ -31,70 +31,70 @@ namespace gp
 
 		DrawOrder::Reference DrawOrder::DrawCircle(int x, int y, int r, int color, int FillFlag, int LineThickness)
 		{
-			orders()[0].push_back([=](void) {::DrawCircle(x, y, r, color, FillFlag, LineThickness); });
+			orders()[0].emplace_back([=](void) {::DrawCircle(x, y, r, color, FillFlag, LineThickness); });
 			return std::make_pair(0, orders()[0].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawCircle(Level level, int x, int y, int r, int color, int FillFlag, int LineThickness)
 		{
-			orders()[level.value()].push_back([=](void) {::DrawCircle(x, y, r, color, FillFlag, LineThickness); });
+			orders()[level.value()].emplace_back([=](void) {::DrawCircle(x, y, r, color, FillFlag, LineThickness); });
 			return std::make_pair(level.value(), orders()[level.value()].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawRotaGraphF(float xf, float yf, double ExRate, double Angle, int GrHandle, int TransFlag, int TurnFlag)
 		{
-			orders()[0].push_back([=](void) {::DrawRotaGraphF(xf, yf, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
+			orders()[0].emplace_back([=](void) {::DrawRotaGraphF(xf, yf, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
 			return std::make_pair(0, orders()[0].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawRotaGraphF(Level level, float xf, float yf, double ExRate, double Angle, int GrHandle, int TransFlag, int TurnFlag)
 		{
-			orders()[level.value()].push_back([=](void) {::DrawRotaGraphF(xf, yf, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
+			orders()[level.value()].emplace_back([=](void) {::DrawRotaGraphF(xf, yf, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
 			return std::make_pair(level.value(), orders()[level.value()].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawRotaGraph(int x, int y, double ExRate, double Angle, int GrHandle, int TransFlag, int TurnFlag)
 		{
-			orders()[0].push_back([=](void) {::DrawRotaGraph(x, y, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
+			orders()[0].emplace_back([=](void) {::DrawRotaGraph(x, y, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
 			return std::make_pair(0, orders()[0].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawRotaGraph(Level level, int x, int y, double ExRate, double Angle, int GrHandle, int TransFlag, int TurnFlag)
 		{
-			orders()[level.value()].push_back([=](void) {::DrawRotaGraph(x, y, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
+			orders()[level.value()].emplace_back([=](void) {::DrawRotaGraph(x, y, ExRate, Angle, GrHandle, TransFlag, TurnFlag); });
 			return std::make_pair(level.value(), orders()[level.value()].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawModiGraph(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int Grhandle, int TransFlag)
 		{
-			orders()[0].push_back([=](void) {::DrawModiGraph(x1, y1, x2, y2, x3, y3, x4, y4, Grhandle, TransFlag); });
+			orders()[0].emplace_back([=](void) {::DrawModiGraph(x1, y1, x2, y2, x3, y3, x4, y4, Grhandle, TransFlag); });
 			return std::make_pair(0, orders()[0].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawModiGraph(Level level, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int Grhandle, int TransFlag)
 		{
-			orders()[level.value()].push_back([=](void) {::DrawModiGraph(x1, y1, x2, y2, x3, y3, x4, y4, Grhandle, TransFlag); });
+			orders()[level.value()].emplace_back([=](void) {::DrawModiGraph(x1, y1, x2, y2, x3, y3, x4, y4, Grhandle, TransFlag); });
 			return std::make_pair(level.value(), orders()[level.value()].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawLine(int x1, int y1, int x2, int y2, unsigned int Color, int Thickness)
 		{
-			orders()[0].push_back([=](void) {::DrawLine(x1, y1, x2, y2, Color, Thickness); });
+			orders()[0].emplace_back([=](void) {::DrawLine(x1, y1, x2, y2, Color, Thickness); });
 			return std::make_pair(0, orders()[0].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawLine(Level level, int x1, int y1, int x2, int y2, unsigned int Color, int Thickness)
 		{
-			orders()[level.value()].push_back([=](void) {::DrawLine(x1, y1, x2, y2, Color, Thickness); });
+			orders()[level.value()].emplace_back([=](void) {::DrawLine(x1, y1, x2, y2, Color, Thickness); });
 			return std::make_pair(level.value(), orders()[level.value()].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawGraph(int x, int y, int GrHandle, int TransFlag)
 		{
-			orders()[0].push_back([=](void) {::DrawGraph(x, y, GrHandle, TransFlag); });
+			orders()[0].emplace_back([=](void) {::DrawGraph(x, y, GrHandle, TransFlag); });
 			return std::make_pair(0, orders()[0].size() - 1);
 		}
 		DrawOrder::Reference DrawOrder::DrawGraph(Level level, int x, int y, int GrHandle, int TransFlag)
 		{
-			orders()[level.value()].push_back([=](void) {::DrawGraph(x, y, GrHandle, TransFlag); });
+			orders()[level.value()].emplace_back([=](void) {::DrawGraph(x, y, GrHandle, TransFlag); });
 			return std::make_pair(level.value(), orders()[level.value()].size() - 1);
 		}
 
 		DrawOrder::Reference operator>>(DrawOrder::Reference Bottom, DrawOrder::Reference Top)
 		{
-			const auto top = DrawOrder::orders()[Top.first][Top.second];
-			const auto bottom = DrawOrder::orders()[Bottom.first][Bottom.second];
-			DrawOrder::orders()[Top.first][Top.second] = [=](void)
+			auto top = std::move(DrawOrder::orders()[Top.first][Top.second]);
+			auto bottom = std::move(DrawOrder::orders()[Bottom.first][Bottom.second]);
+			DrawOrder::orders()[Top.first][Top.second] = [bottom = std::move(bottom), top = std::move(top)](void)
 			{
 				bottom();
 				top();
@@ -105,8 +105,8 @@ namespace gp
 
 		DrawOrder::Reference DrawOrder::SetDrawBlendModeOf(Reference Drawer, int BlendMode, int Pal)
 		{
-			const auto temp = orders()[Drawer.first][Drawer.second];
-			orders()[Drawer.first][Drawer.second] = [=](void) 
+			auto temp = std::move(orders()[Drawer.first][Drawer.second]);
+			orders()[Drawer.first][Drawer.second] = [BlendMode, Pal, temp = std::move(temp)](void) 
 			{
 				::SetDrawBlendMode(BlendMode, Pal);
 				temp();
@@ -117,8 +117,8 @@ namespace gp
 
 		DrawOrder::Reference DrawOrder::SetDrawScreenOf(Reference Drawer, int GrHandle)
 		{
-			const auto temp = orders()[Drawer.first][Drawer.second];
-			orders()[Drawer.first][Drawer.second] = [=](void) 
+			auto temp = std::move(orders()[Drawer.first][Drawer.second]);
+			orders()[Drawer.first][Drawer.second] = [GrHandle, temp = std::move(temp)](void) 
 			{
 				::SetDrawScreen(GrHandle);
 				temp();
@@ -130,9 +130,47 @@ namespace gp
 		DrawOrder::GrHandleType DrawOrder::MakeScreen(int XSize, int YSize, int UseAlphaChannel)
 		{
 			const auto gr = DxLib::MakeScreen(XSize, YSize, UseAlphaChannel);
-			graphs().push_back(gr);
+			graphs().emplace_back(gr);
 			return gr;
 		}
+		DrawOrder::GrHandleType DrawOrder::DerivationGraph(int SrcX, int SrcY, int Width, int Height, int SrcGraphHendle)
+		{
+			const auto gr = DxLib::DerivationGraph( SrcX,  SrcY,  Width,  Height,  SrcGraphHendle);
+			graphs().emplace_back(gr);
+			return gr;
+		}
+
+		DrawOrder::ScopedGraph::ScopedGraph(int XSize, int YSize, bool UseAlphaChannel) noexcept
+			: value(DxLib::MakeScreen(XSize, YSize, static_cast<int>(UseAlphaChannel)))
+		{}
+
+		DrawOrder::ScopedGraph::ScopedGraph(ScopedGraph&& _graph) noexcept
+			: value(_graph.value)
+		{
+			_graph.value = 0;
+		}
+
+		DrawOrder::ScopedGraph& DrawOrder::ScopedGraph::operator=(ScopedGraph&& _rhs) noexcept
+		{
+			value = _rhs.value;
+			_rhs.value = 0;
+		}
+
+		int DrawOrder::ScopedGraph::clear(void) noexcept
+		{
+			int result{0};
+			result += DxLib::SetDrawScreen(value);
+			result += DxLib::ClearDrawScreen();
+			result += DxLib::SetDrawScreen(DX_SCREEN_BACK);
+			return result < 0 ? -1 : 0;
+		}
+
+		DrawOrder::ScopedGraph::operator DrawOrder::GrHandleType() const noexcept
+		{
+			return value;
+		}
+
+		DrawOrder::ScopedGraph::~ScopedGraph(void) noexcept { DxLib::DeleteGraph(value); }
 	}
 
 	Level level(unsigned int level) { return Imple::DrawOrder::level(level); }
@@ -204,5 +242,9 @@ namespace gp
 	GrHandle MakeScreen(int XSize, int YSize, int UseAlphaChannel)
 	{
 		return Imple::DrawOrder::MakeScreen(XSize, YSize, UseAlphaChannel);
+	}
+	GrHandle DerivationGraph(int SrcX, int SrcY, int Width, int Height, int SrcGraphHendle)
+	{
+		return Imple::DrawOrder::DerivationGraph( SrcX,  SrcY,  Width,  Height,  SrcGraphHendle);
 	}
 }

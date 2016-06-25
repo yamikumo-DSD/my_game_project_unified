@@ -3,59 +3,64 @@
 #include "object.h"
 #include "hitbox.h"
 
-MyGameProject::Object::Object(void){}
-
-MyGameProject::Object::~Object(void){}
-
-void MyGameProject::StaticObject::update(void){}
-
-MyGameProject::StaticObject::~StaticObject(void){}
-
-MyGameProject::HitableObject::HitableObject(const HitBox& _hitbox)
-	:hitbox(_hitbox)
-{}
-
-const MyGameProject::HitBox& MyGameProject::HitableObject::area(void) const
+namespace MyGameProject
 {
-	return hitbox;
-}
 
-MyGameProject::HitBox& MyGameProject::HitableObject::area(void)
-{
-	return hitbox;
-}
+	Object::Object(void) {}
 
-MyGameProject::HitableObject::~HitableObject(void){}
+	Object::~Object(void) {}
 
-bool MyGameProject::is_hit(const HitableObject& _obj1, const HitableObject& _obj2)
-{
-	return intersect(_obj1.area(),_obj2.area());
-}
+	void StaticObject::update(void) {}
 
-MyGameProject::DynamicObject::DynamicObject(void) :flag(true){}
+	StaticObject::~StaticObject(void) {}
 
-bool MyGameProject::DynamicObject::get_flag(void) const{ return flag; }
+	HitableObject::HitableObject(const HitBox& _hitbox)
+		:hitbox(_hitbox)
+	{}
 
-void MyGameProject::DynamicObject::set_flag_off(void){ flag = false; }
+	const HitBox& HitableObject::area(void) const
+	{
+		return hitbox;
+	}
 
-MyGameProject::DynamicObject::~DynamicObject(void){}
+	HitBox& HitableObject::area(void)
+	{
+		return hitbox;
+	}
 
-MyGameProject::MovingObject::MovingObject(const Point2D& _p)
-	:p(_p)
-{}
+	HitableObject::~HitableObject(void) {}
 
-MyGameProject::MovingObject::MovingObject(void)
-	: p(Point2D(0, 0))
-{}
+	bool is_hit(const HitableObject& _obj1, const HitableObject& _obj2)
+	{
+		return intersect(_obj1.area(), _obj2.area());
+	}
 
-const MyGameProject::Point2D& MyGameProject::MovingObject::pos(void) const
-{
-	return p;
-}
+	DynamicObject::DynamicObject(void) :flag(true) {}
 
-MyGameProject::Point2D& MyGameProject::MovingObject::pos(void)
-{
-	return p;
-}
+	bool DynamicObject::get_flag(void) const { return flag; }
 
-MyGameProject::MovingObject::~MovingObject(void){}
+	void DynamicObject::set_flag_off(void) { flag = false; }
+
+	DynamicObject::~DynamicObject(void) {}
+
+	MovingObject::MovingObject(const Point2D& _p)
+		:p(_p)
+	{}
+
+	MovingObject::MovingObject(void)
+		: p(Point2D(0, 0))
+	{}
+
+	const Point2D& MovingObject::pos(void) const
+	{
+		return p;
+	}
+
+	Point2D& MovingObject::pos(void)
+	{
+		return p;
+	}
+
+	MovingObject::~MovingObject(void) {}
+
+}//namespace MyGameProject

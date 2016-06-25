@@ -31,7 +31,7 @@ namespace gp
 				buf << arg;
 				return *this;
 			}
-			DX_SStream& operator<<(Color& _color);
+			DX_SStream& operator<<(const Color& _color);
 			template<> DX_SStream& operator<<(NewLine const& nline)
 			{
 				static const std::string empty_str;

@@ -78,7 +78,7 @@ namespace MyGameProject
 	void LockedMarker::draw(void) const
 	{
 		//draw head
-		gp::DrawRotaGraph
+		gp::DrawRotaGraphF
 		(
 				gp::level(25),
 				pos().x(),
@@ -94,7 +94,7 @@ namespace MyGameProject
 				const auto count = vars->count;
 				gp::SetDrawBlendModeOf
 				(
-					gp::DrawRotaGraph
+					gp::DrawRotaGraphF
 					(
 							gp::level(25),
 							pos().x(),
@@ -119,7 +119,7 @@ namespace MyGameProject
 				const auto count = vars->count;
 				gp::SetDrawBlendModeOf
 				(
-					gp::DrawRotaGraph
+					gp::DrawRotaGraphF
 					(
 							gp::level(25),
 							pos().x(),
@@ -139,13 +139,13 @@ namespace MyGameProject
 			}
 		}
 		gp::dxout(pos().x(), pos().y()) << gp::red << m << gp::end;
-	}
+	} //LockedMarker::draw
 
-	LockedMarker::~LockedMarker(void) {}
+	LockedMarker::~LockedMarker(void) = default;
 
 	void LockedMarker::preperation(void)
 	{
 		ImagePool::add("../../data/img/locked_marker.png");
 		LockedMarkerVars::img() = ImagePool::get("../../data/img/locked_marker.png");
 	}
-}
+} //namespace MyGameProject

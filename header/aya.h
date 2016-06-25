@@ -34,5 +34,6 @@ namespace MyGameProject
 		virtual void hit(int _shot_power) override final;
 		virtual ~Aya(void);
 		virtual int get_health(void) const override final;
+		virtual BackGroundControl::OptionalSignal notify(void) const noexcept override final;
 	};
 }

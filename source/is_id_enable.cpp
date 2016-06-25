@@ -12,7 +12,7 @@ namespace MyGameProject
 		(
 			_enemies.begin(), 
 			_enemies.end(), 
-			[=](gp::smart_ptr<Enemy> _enemy) 
+			[_id_searched](gp::smart_ptr<Enemy> _enemy) 
 			{
 				if (_enemy && _enemy->get_flag() && _enemy->get_id() == _id_searched) { return true; }
 				else { return false; }

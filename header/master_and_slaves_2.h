@@ -50,4 +50,24 @@ namespace MyGameProject
 		static void preperation(void);
 		virtual ~Master2(void);
 	};
+
+	class GreenMaster : public MobEnemy
+	{
+	private:
+		struct Impl;
+		std::unique_ptr<Impl> pimpl;
+		virtual void accessory_custom_updater(void) override final;
+	public:
+		GreenMaster
+		(
+			BulletPtrContainer& _bullets,
+			SEManager& _se_manager,
+			gp::smart_ptr<EnemyOrder> _order,
+			const Player& _player
+		);
+		virtual void draw(void) const override final;
+		static void preperation(void);
+		virtual ~GreenMaster(void);
+	};
+
 }

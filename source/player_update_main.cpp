@@ -12,6 +12,7 @@
 #include "locked_marker.h"
 #include "debug_value.h"
 #include "shared_object.h"
+#include "ranged_uniform_random.h"
 
 namespace MyGameProject
 {
@@ -120,7 +121,7 @@ namespace MyGameProject
 		//Deal with shots
 		if (weapon() == WeaponType::SHORT_RANGE || weapon() == WeaponType::HYPER_SHORT_RANGE)
 		{
-			if (vars->radius < PlayerVars::MAX_RADIUS) { vars->radius += 10; }
+			if (vars->radius < PlayerVars::MAX_RADIUS) { vars->radius += 20; }
 			else { vars->radius = PlayerVars::MAX_RADIUS; }
 
 			auto& locking_count = vars->short_range_weapon_count;
@@ -217,6 +218,7 @@ namespace MyGameProject
 			if (vars->number_of_locked_enemies > 0) { erect_se_flag_of("../../data/sound/laser_released.wav"); }
 			vars->short_range_weapon_count = 0;
 			int n = 0;
+			const auto theta{gp::safe_rand<Real>(0, two_pi<Real>())};
 			for (int i = 0; i != vars->locked_enemy_list.size(); ++i)
 			{
 				const auto m = vars->locked_enemy_list[i].m;
@@ -226,12 +228,12 @@ namespace MyGameProject
 					if (hyper_mode)
 					{
 						*find_vacant_object(shots) =
-							std::make_shared<HomingShot2>(SharedObject::enemies()[i], n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos(), vars->number_of_locked_enemies);
+							std::make_shared<HomingShot2 >(SharedObject::enemies()[i], theta + n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos(), vars->number_of_locked_enemies);
 					}
 					else
 					{
 						*find_vacant_object(shots) =
-							std::make_shared<HomingLazer2>(SharedObject::enemies()[i], n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos(), vars->number_of_locked_enemies);
+							std::make_shared<HomingLazer2>(SharedObject::enemies()[i], theta + n++ * (two_pi<Real>() / vars->number_of_locked_enemies), pos(), vars->number_of_locked_enemies);
 					}
 				}
 			}

@@ -14,13 +14,14 @@
 #include "dxsstream.h"
 #include "debug_value.h"
 #include "lock_weight_to_rate.h"
+#include "border_check.h"
 
 namespace MyGameProject
 {
 	using namespace boost::math::constants;
 
 	HomingLazer2::HomingLazer2(decltype(target) _target, Real _angle, const Point2D& _p, int _lock_num)
-		:Shot(ShapeElement::Circle(20), 70, _angle, _p, lock_weight_to_rate(_lock_num)),
+		:Shot(ShapeElement::Null(), 70, _angle, _p, lock_weight_to_rate(_lock_num)),
 		target(_target),
 		hit_flag(false),
 		brt(255),
@@ -135,22 +136,13 @@ namespace MyGameProject
 		{
 			const auto x = pos().x(), y = pos().y();
 
-			if (target)
+			if (target && count >= 5)
 			{
-				if (count > 20) { speed = 40; }
-				Real omega = static_cast<Real>(0.30); if (count > 30 && count < 70) { omega += (count - 30) * static_cast<Real>(0.007); }
-
-				Real theta = angle_of(target->pos() - pos());
-
-				if (count < 70)
-				{
-					if (abs(angle() - theta) > omega)
-					{
-						if (sin(angle() - theta) < 0) { angle(angle() + omega); }
-						else if (sin(angle() - theta) > 0) { angle(angle() - omega); }
-					}
-					if (abs(abs(angle() - theta) - two_pi<Real>()) < omega) { angle(theta); }
-				}
+				if (count == 5) { area().get_shape() = ShapeElement::Circle(20); }
+				auto to_target{target->pos() - pos()};
+				to_target = to_target * (1 / norm(to_target)); //normalize
+				const auto cross{cos(angle()) * to_target.y() - sin(angle()) * to_target.x()};
+				angle(angle() + 0.6 * cross);
 			}
 			pos().x(x + speed * cos(angle()));
 			pos().y(y + speed * sin(angle()));
@@ -158,7 +150,7 @@ namespace MyGameProject
 			//trail[0] corresponding with current position.
 			trail[0] = pos();
 
-			if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
+			if (is_within_window(pos(), 200) && (count > 200 || !target))
 			{
 				set_flag_off();
 			}

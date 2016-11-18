@@ -14,6 +14,7 @@
 #include "dxsstream.h"
 #include "debug_value.h"
 #include "lock_weight_to_rate.h"
+#include "border_check.h"
 
 namespace MyGameProject
 {
@@ -25,7 +26,7 @@ namespace MyGameProject
 	using namespace boost::math::constants;
 
 	HomingShot2::HomingShot2(decltype(target) _target, Real _angle, const Point2D& _p, int _lock_num)
-		:Shot(ShapeElement::Circle(20), 90, _angle, _p, lock_weight_to_rate(_lock_num)),
+		:Shot(ShapeElement::Null(), 90, _angle, _p, lock_weight_to_rate(_lock_num)),
 		target(_target),
 		hit_flag(false),
 		mag(static_cast<Real>(0.7)),
@@ -43,11 +44,29 @@ namespace MyGameProject
 		for (int j = 0; j != trail.size(); ++j)
 		{
 			gp::SetDrawBlendModeOf
+			(
+				gp::DrawRotaGraph(gp::level(13), trail[j].x(), trail[j].y(), 0.7 - 0.04 * i, rot, HomingShot2Imple::img(), TRUE),
+				DX_BLENDMODE_ADD,
+				255 - 20 * i++
+			);
+
+			//Fill median position.
+			if (j < static_cast<int>(trail.size() - 1))
+			{
+				gp::SetDrawBlendModeOf
 				(
-					gp::DrawRotaGraph(gp::level(13), trail[j].x(), trail[j].y(), 0.7 - 0.04 * i, rot, HomingShot2Imple::img(), TRUE),
+					gp::DrawRotaGraph
+					(
+						gp::level(13), 
+						(trail[j].x() + trail[j + 1].x()) / 2,
+						(trail[j].y() + trail[j + 1].y()) / 2,
+						(0.7 - 0.04 * i + 0.7 - 0.04 * (i + 1)) / 2, 
+						rot, HomingShot2Imple::img(), TRUE
+					),
 					DX_BLENDMODE_ADD,
-					255 - 20 * i++
-					);
+					(255 - 20 * i + 255 - 20 * (i + 1)) / 2
+				);
+			}
 		}
 	}
 
@@ -79,29 +98,20 @@ namespace MyGameProject
 		{
 			const auto x = pos().x(), y = pos().y();
 
-			if (target)
+			if (target && count >= 5)
 			{
-				if (count > 20) { speed = 40; }
-				Real omega = static_cast<Real>(0.3); if (count > 30 && count < 100) { omega += (count - 30) * static_cast<Real>(0.007); }
-
-				Real theta = angle_of(target->pos() - pos());
-
-				if (count < 100)
-				{
-					if (abs(angle() - theta) >= omega)
-					{
-						if (sin(angle() - theta) <= 0) { angle(angle() + omega); }
-						else { angle(angle() - omega); }
-					}
-					if (abs(abs(angle() - theta) - two_pi<Real>()) < omega) { angle(theta); }
-				}
+				if (count == 5) { area().get_shape() = ShapeElement::Circle(20); }
+				auto to_target{target->pos() - pos()};
+				to_target = to_target * (1 / norm(to_target)); //normalize
+				const auto cross{cos(angle()) * to_target.y() - sin(angle()) * to_target.x()};
+				angle(angle() + 0.6 * cross);
 			}
 			pos().x(x + speed * std::cos(angle()));
 			pos().y(y + speed * std::sin(angle()));
 
 			trail[0] = pos();
 
-			if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
+			if (is_within_window(pos(), 200) && (count > 200 || !target))
 			{
 				set_flag_off();
 			}

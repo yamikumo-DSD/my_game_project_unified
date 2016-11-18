@@ -480,8 +480,7 @@ void MyVM::RepeatableVM::execute(void)
 								invoker.advance_sp(-1);
 							}
 						}
-						break;
-					}
+				}break;
 				case Instruction::IRETURN:
 					{
 						active_method_info = invoker_info.top();

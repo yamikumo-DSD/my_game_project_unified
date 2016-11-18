@@ -7,6 +7,7 @@
 #include "mathematics.h"
 #include "ranged_uniform_random.h"
 #include "se_manager.h"
+#include "add_get.h"
 
 namespace MyGameProject
 {
@@ -58,7 +59,7 @@ namespace MyGameProject
 		const auto count{ get_count() };
 		if (count > 0)
 		{
-			if (velocity().x() > 0)
+			if (calc_velocity().x() > 0)
 			{
 				gp::DrawRotaGraphF(gp::level(12), pos().x(), pos().y(), 1.3, 0.0, Impl::img_right()[(count / 8) % 4], true);
 			}
@@ -71,22 +72,17 @@ namespace MyGameProject
 
 	void Crow3::preparation(void)
 	{
-		ImagePool::add("../../data/img/crow2_00.png");
-		Impl::img_left()[0] = ImagePool::get("../../data/img/crow2_00.png");
-		ImagePool::add("../../data/img/crow2_01.png");
-		Impl::img_left()[1] = ImagePool::get("../../data/img/crow2_01.png");
-		ImagePool::add("../../data/img/crow2_02.png");
-		Impl::img_left()[2] = ImagePool::get("../../data/img/crow2_02.png");
-		ImagePool::add("../../data/img/crow2_01.png");
-		Impl::img_left()[3] = ImagePool::get("../../data/img/crow2_01.png");
+		auto&& img_left{Impl::img_left()};
+		auto&& img_right{Impl::img_right()};
 
-		ImagePool::add("../../data/img/crow2_00_.png");
-		Impl::img_right()[0] = ImagePool::get("../../data/img/crow2_00_.png");
-		ImagePool::add("../../data/img/crow2_01_.png");
-		Impl::img_right()[1] = ImagePool::get("../../data/img/crow2_01_.png");
-		ImagePool::add("../../data/img/crow2_02_.png");
-		Impl::img_right()[2] = ImagePool::get("../../data/img/crow2_02_.png");
-		ImagePool::add("../../data/img/crow2_01_.png");
-		Impl::img_right()[3] = ImagePool::get("../../data/img/crow2_01_.png");
+		img_left[0] = add_get("../../data/img/crow2_00.png");
+		img_left[1] = add_get("../../data/img/crow2_01.png");
+		img_left[2] = add_get("../../data/img/crow2_02.png");
+		img_left[3] = add_get("../../data/img/crow2_01.png");
+
+		img_right[0] = add_get("../../data/img/crow2_00_.png");
+		img_right[1] = add_get("../../data/img/crow2_01_.png");
+		img_right[2] = add_get("../../data/img/crow2_02_.png");
+		img_right[3] = add_get("../../data/img/crow2_01_.png");
 	}
 }

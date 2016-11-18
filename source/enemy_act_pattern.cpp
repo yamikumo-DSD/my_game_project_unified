@@ -1,22 +1,19 @@
 //enemy_act_pattern.cpp
 
 #include "enemy_act_pattern.h"
-#include "bullet.h"
-#include "find_vacant_object.h"
-#include <boost/math/constants/constants.hpp>
-#include "bullet_behavior.h"
 #include "mathematics.h"
 #include "se_manager.h"
 #include "ranged_uniform_random.h"
-#include "player.h"
 #include "motion.h"
 #include "environmental_constants.h"
 #include "shared_object.h"
 #include "debug.h"
+#include "diffuse_point.h"
 
 namespace MyGameProject
 {
 	using namespace boost::math::constants;
+	using P = Point2D;
 
 	MobEnemy::ActPattern default_pattern = [](MobEnemy& _enemy)->void {};
 
@@ -226,46 +223,6 @@ namespace MyGameProject
 	Pattern19 pattern19;
 	Pattern20 pattern20;
 	Pattern21 pattern21;
-
-#include <type_traits>
-
-	//Minimum _n is not 1, but 0.
-	template<typename Integer, std::enable_if_t<std::is_integral<std::decay_t<Integer>>::value>* = nullptr>
-	inline decltype(auto) get_n_th_arg(const std::vector<Point2D>& _args, Integer&& _n)
-	{
-		using namespace std::literals;
-		try
-		{
-			if (_n % 2 == 0) { return _args.at(_n / 2).x(); }
-			else { return _args.at(_n / 2).y(); }
-		}
-		catch (std::out_of_range) 
-		{
-			throw std::out_of_range("The number of arguments is less than "s + boost::lexical_cast<std::string>(_n + 1) + '.'); 
-		}
-	}
-
-	template<typename RealType, std::enable_if_t<std::is_arithmetic<std::decay_t<RealType>>::value>* = nullptr>
-	inline auto unit_vec(RealType&& _angle) noexcept
-	{
-		return Point2D(static_cast<Real>(std::cos(std::forward<RealType>(_angle))), static_cast<Real>(std::sin(std::forward<RealType>(_angle))));
-	}
-
-	template<typename... Ts>
-	inline void register_bullet(Ts&&... _args) noexcept
-	{
-		try { *find_vacant_object(SharedObject::bullets()) = Bullet::create(std::forward<Ts>(_args)...); }
-		catch (NoSpace) {}
-	}
-
-#ifndef OVERRIDE_PARENTHESIS
-#define OVERRIDE_PARENTHESIS virtual void operator()(MobEnemy& _enemy) override final
-#endif
-
-#ifndef ALIASES
-	//Alias player, count, and the enemy's position.
-#define ALIASES decltype(auto) player(_enemy.player_ref()); const auto count{_enemy.get_count()}; decltype(auto) pos(_enemy.pos());
-#endif
 
 	MobEnemy::ActPattern pattern100(const std::vector<Point2D>& _args)
 	{
@@ -806,18 +763,143 @@ namespace MyGameProject
 
 	struct Pattern110 final : Pattern
 	{
+		LinearMotionOfUniformAcceleration2D<Point2D, int> motion;
+		Point2D v;
+		const int duration{0};
+		Pattern110(int _duration) noexcept :duration(_duration), v(){}
 		OVERRIDE_PARENTHESIS
 		{
 			ALIASES;
-
+			if (count < duration)
+			{
+				if (count % 120 == 0)
+				{
+					motion = create_linear_motion_of_uniform_acceleration_2D
+					(
+						pos, 
+						diffuse_point_rect
+						(
+							Point2D(0, 0), Point2D(WW<Real>(), 200)
+						),
+						40
+					);
+					v = motion.v0();
+				}
+				if (count % 120 < 40) { v += motion.a(); }
+				else if (count % 120 >= 40 && count % 120 < 100)
+				{
+					if (count % 7 == 0) 
+					{
+						se_manager.erect_play_flag_of("../../data/sound/enemy_shot_03.wav");
+						*find_vacant_object(SharedObject::bullets()) = Bullet::create ( "B4", _enemy, player, pos + Point2D( 30, -10), half_pi<Real>(), straight_course(8) );
+						*find_vacant_object(SharedObject::bullets()) = Bullet::create ( "B4", _enemy, player, pos + Point2D(-30, -10), half_pi<Real>(), straight_course(8) );
+					}
+				}
+			}
+			else if(count == duration) { v = Point2D(0, 0); }
+			else { v += Point2D(0, -0.2); }
+			pos += v;
 		}
 	};
 
-	MobEnemy::ActPattern pattern110(const std::vector<Point2D>& _args) { return pattern0; }
-	MobEnemy::ActPattern pattern111(const std::vector<Point2D>& _args) { return pattern0; }
-	MobEnemy::ActPattern pattern112(const std::vector<Point2D>& _args) { return pattern0; }
-	MobEnemy::ActPattern pattern113(const std::vector<Point2D>& _args) { return pattern0; }
-	MobEnemy::ActPattern pattern114(const std::vector<Point2D>& _args) { return pattern0; }
+	MobEnemy::ActPattern pattern110(const std::vector<Point2D>& _args)
+	{
+		if (_args.size() == 1)
+		{
+			return Pattern110(get_n_th_arg(std::move(_args), 0));
+		}
+		else
+		{
+			throw std::runtime_error("Pattern 110 needs 1 arguments.");
+		}
+	}
+
+	struct Pattern111 final : Pattern
+	{
+		const Point2D v;
+		Pattern111(Real _vx, Real _vy):v(_vx, _vy){}
+		OVERRIDE_PARENTHESIS
+		{
+			ALIASES;
+			pos += v;
+		}
+	};
+
+	MobEnemy::ActPattern pattern111(const std::vector<Point2D>& _args) 
+	{
+		if (_args.size() == 1)
+		{
+			return Pattern111(get_n_th_arg(_args, 0), get_n_th_arg(_args, 1));
+		}
+		else
+		{
+			throw std::runtime_error("Pattern 111 needs 2 arguments.");
+		}
+	}
+
+	struct Pattern112 final : Pattern
+	{
+		const P first_dst, second_dst;
+		P v;
+		const int wait_time;
+		LinearMotionOfUniformAcceleration2D<P, int> motion;
+		static constexpr auto T0{60};
+		Real theta{0};
+
+		Pattern112(const P _first_dst, int _wait_time, const P _second_dst)
+			:first_dst(_first_dst), second_dst(_second_dst), wait_time(_wait_time) {}
+		OVERRIDE_PARENTHESIS
+		{
+			ALIASES;
+			if (count == 0)
+			{
+				motion = create_linear_motion_of_uniform_acceleration_2D(pos, first_dst, T0);
+				v = motion.v0();
+			}
+			else if(count > 0 && count <= T0)
+			{
+				v += motion.a();
+			}
+			else if (count == T0)
+			{
+				v = P(0, 0);
+			}
+			else if (count > T0 && count < T0 + wait_time)
+			{
+				if (count % 6 == 0)
+				{
+					se_manager.erect_play_flag_of("../../data/sound/enemy_shot_03.wav");
+					const auto dir{angle_of(player.pos() - pos)};
+					*find_vacant_object(SharedObject::bullets()) = 
+						Bullet::create ( "B3", _enemy, player, pos, dir, acceleration(3, 0.3, 12) );
+				}
+			}
+			else if (count == T0 + wait_time)
+			{
+				theta = angle_of(second_dst - pos);
+			}
+			else if (count > T0 + wait_time)
+			{
+				v += 0.1 * P(cos(theta), sin(theta));
+			}
+			pos += v;
+		}
+	};
+
+	MobEnemy::ActPattern pattern112(const std::vector<Point2D>& _args)
+	{
+		if (_args.size() == 3)
+		{
+			const auto get{ [&_args](auto&& _n) {return get_n_th_arg(_args, _n); } };
+			return Pattern112(P(get(4), get(3)), get(2), P(get(1), get(0)));
+		}
+		else
+		{
+			throw std::runtime_error("Pattern 112 needs 5 arguments.");
+		}
+	}
+
+
 	MobEnemy::ActPattern pattern115(const std::vector<Point2D>& _args) { return pattern0; }
 	MobEnemy::ActPattern pattern116(const std::vector<Point2D>& _args) { return pattern0; }
 	MobEnemy::ActPattern pattern117(const std::vector<Point2D>& _args) { return pattern0; }

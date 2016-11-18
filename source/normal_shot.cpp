@@ -18,44 +18,9 @@ namespace MyGameProject
 {
 	using namespace boost::math::constants;
 
-	struct ShotHit : public MovingObject
-	{
-		static int& shot_hit_img(void) { static int img = 0; return img; }
-		static constexpr Real speed = 6.f;
-		Real angle;
-		int count;
-		ShotHit(void):MovingObject(), angle(0.f), count(0){}
-		explicit ShotHit(const Point2D& _initial_pos, Real _angle) :MovingObject(_initial_pos), angle(_angle), count(0)
-		{
-		}
-		virtual void draw(void) const override final
-		{
-			if (count > 0)
-			{
-				gp::SetDrawBlendModeOf
-					(
-						gp::DrawRotaGraph(gp::level(14), pos().x(), pos().y(), 0.5, angle + half_pi<Real>(), shot_hit_img(), true),
-						DX_BLENDMODE_ALPHA,
-						200 - 20 * count
-						);
-			}
-		}
-		virtual void update(void)override final
-		{
-			using namespace std;
-			pos() += speed * Point2D(cos(angle), sin(angle));
-			++count;
-		}
-		static void preperation(void)
-		{
-			shot_hit_img() = ImagePool::get("../../data/img/shot_hit.png");
-		}
-	};
-
 	struct NormalShotImple
 	{
 		static int& ofuda_img(void) { static int img = 0; return img; }
-		std::array<ShotHit, 3> shot_hits;
 		int count_after_hit;
 	};
 
@@ -83,11 +48,12 @@ namespace MyGameProject
 		}
 		else
 		{
-			for (const auto& shot_hit : vars->shot_hits)
-			{
-				shot_hit.draw();
-			}
-			//gp::DrawRotaGraph(pos().x(), pos().y(), 2.0, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/shot_active.png"), TRUE); 
+			gp::SetDrawBlendModeOf
+			(
+				gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.0, angle() + pi<Real>() / 2, NormalShotImple::ofuda_img(), TRUE), 
+				DX_BLENDMODE_ADD,
+				100
+			);
 		}
 	}
 
@@ -123,18 +89,8 @@ namespace MyGameProject
 
 		if (hit_flag)
 		{
-			if (vars->count_after_hit == 0)
-			{
-				auto theta0 = gp::safe_rand(0.f, two_pi<Real>());
-				for (int i = 0; i != vars->shot_hits.size(); ++i)
-				{
-					vars->shot_hits[i] = ShotHit(pos(), theta0 + i * two_pi<Real>() / vars->shot_hits.size());
-				}
-			}
-			for (auto& shot_hit : vars->shot_hits)
-			{
-				shot_hit.update();
-			}
+			pos().x(pos().x() + (SHOT_VELOCITY / 5) * std::cos(angle()));
+			pos().y(pos().y() + (SHOT_VELOCITY / 5) * std::sin(angle()));
 			++vars->count_after_hit;
 		}
 		++count;
@@ -150,7 +106,6 @@ namespace MyGameProject
 		ImagePool::add("../../data/img/aura.png");
 		ImagePool::add("../../data/img/shot_active.png");
 		ImagePool::add("../../data/img/shot_hit.png");
-		ShotHit::preperation();
 	}
 }
 

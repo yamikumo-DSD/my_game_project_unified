@@ -18,16 +18,6 @@ namespace MyGameProject
 	public:
 		using BulletPtrContainer = std::vector <gp::smart_ptr<Bullet>>;
 		using ItemPtrContainer   = std::vector <gp::smart_ptr<Item>>;
-
-		static gp::smart_ptr<Boss> create
-			(
-			const std::string& _boss_name,
-			BulletPtrContainer& _bullets,
-			ItemPtrContainer& _items,
-			std::function<void(const std::string&)> _se_flag_setter,
-			std::function<void(float)> _play_speed_changer,
-			const Player& _player
-			);
 	protected:
 		std::function<void(const std::string&)> erect_se_flag_of;
 	private:

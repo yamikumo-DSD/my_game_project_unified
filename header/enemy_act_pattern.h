@@ -4,6 +4,12 @@
 #define __ENEMY_ACT_PATTERN_H
 
 #include "mob_enemy.h"
+#include <type_traits>
+#include "bullet.h"
+#include "shared_object.h"
+#include "find_vacant_object.h"
+#include "bullet_behavior.h"
+#include "player.h"
 
 namespace MyGameProject
 {
@@ -77,6 +83,48 @@ namespace MyGameProject
 	MobEnemy::ActPattern pattern126(const std::vector<Point2D>& _args);
 	MobEnemy::ActPattern pattern127(const std::vector<Point2D>& _args);
 	MobEnemy::ActPattern pattern128(const std::vector<Point2D>& _args);
+
+
+	//Utilities for implementation
+
+	//Minimum _n is not 1, but 0.
+	template<typename Integer, std::enable_if_t<std::is_integral<std::decay_t<Integer>>::value>* = nullptr>
+	inline decltype(auto) get_n_th_arg(const std::vector<Point2D>& _args, Integer&& _n)
+	{
+		using namespace std::literals;
+		try
+		{
+			if (_n % 2 == 0) { return _args.at(_n / 2).x(); }
+			else { return _args.at(_n / 2).y(); }
+		}
+		catch (std::out_of_range) 
+		{
+			throw std::out_of_range("The number of arguments is less than "s + boost::lexical_cast<std::string>(_n + 1) + '.'); 
+		}
+	}
+
+	template<typename RealType, std::enable_if_t<std::is_arithmetic<std::decay_t<RealType>>::value>* = nullptr>
+	inline auto unit_vec(RealType&& _angle) noexcept
+	{
+		return Point2D(static_cast<Real>(std::cos(std::forward<RealType>(_angle))), static_cast<Real>(std::sin(std::forward<RealType>(_angle))));
+	}
+
+	template<typename... Ts>
+	inline void register_bullet(Ts&&... _args) noexcept
+	{
+		try { *find_vacant_object(SharedObject::bullets()) = Bullet::create(std::forward<Ts>(_args)...); }
+		catch (NoSpace) {}
+	}
+
+#ifndef OVERRIDE_PARENTHESIS
+#define OVERRIDE_PARENTHESIS virtual void operator()(MobEnemy& _enemy) override final
+#endif
+
+#ifndef ALIASES
+	//Alias player, count, and the enemy's position.
+#define ALIASES decltype(auto) player(_enemy.player_ref()); const auto count{_enemy.get_count()}; decltype(auto) pos(_enemy.pos()); decltype(auto) se_manager(_enemy.get_se_manager_ref());
+#endif
+
 }
 
 #endif

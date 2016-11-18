@@ -13,6 +13,8 @@
 #include "stage3.h"
 #include "se_manager.h"
 #include "concrete_back_ground.h"
+#include "pattern114.h"
+#include "debug_value.h"
 
 namespace MyGameProject
 {
@@ -64,6 +66,7 @@ namespace MyGameProject
 			se_manager->add("../../data/sound/launcher1.mp3");
 			se_manager->add("../../data/sound/dive.wav");
 			se_manager->add("../../data/sound/dive2.wav");
+			se_manager->add("../../data/sound/bomb.wav");
 		}
 	}
 }

@@ -119,10 +119,10 @@ namespace MyGameProject
 			break;
 		}
 
-		if (get_count() < 200) { gp::DrawRotaGraphF(gp::level(7), pos().x(), pos().y(), 1.0, 0.0, ImagePool::get(img), true); }
+		if (get_count() < 200) { gp::DrawRotaGraphF(gp::level(12), pos().x(), pos().y(), 1.0, 0.0, ImagePool::get(img), true); }
 		else
 		{
-			if (get_count() % 3 == 0) { gp::DrawRotaGraphF(gp::level(7), pos().x(), pos().y(), 1.0, 0.0, ImagePool::get(img), true); }
+			if (get_count() % 3 == 0) { gp::DrawRotaGraphF(gp::level(12), pos().x(), pos().y(), 1.0, 0.0, ImagePool::get(img), true); }
 		}
 	}
 
@@ -166,13 +166,13 @@ namespace MyGameProject
 	{
 		if (get_count() < Impl::LIFE_TIME - 150)
 		{
-			gp::DrawRotaGraphF(gp::level(7),pos().x(), pos().y(), 1.0, 0.0, Impl::img()[(get_count() / 4) % 6], true);
+			gp::DrawRotaGraphF(gp::level(12),pos().x(), pos().y(), 1.0, 0.0, Impl::img()[(get_count() / 4) % 6], true);
 		}
 		else
 		{
 			if (get_count() % 2 == 0)
 			{
-				gp::DrawRotaGraphF(gp::level(7), pos().x(), pos().y(), 1.0, 0.0, Impl::img()[(get_count() / 4) % 6], true);
+				gp::DrawRotaGraphF(gp::level(12), pos().x(), pos().y(), 1.0, 0.0, Impl::img()[(get_count() / 4) % 6], true);
 			}
 		}
 	}

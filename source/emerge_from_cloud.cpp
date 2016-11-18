@@ -11,6 +11,8 @@
 #include "diffuse_point.h"
 #include "add_get.h"
 #include "se_manager.h"
+#include "border_check.h"
+#include "debug_value.h"
 
 namespace MyGameProject
 {
@@ -25,7 +27,8 @@ namespace MyGameProject
 			const Player& _player
 			)
 		:MobEnemy(_bullets, _se_manager, _order, MAX_HP, Class::SMALL, _player, ShapeElement::Null())
-	{}
+	{
+	}
 
 	int EmergeFromCloud::released_p_item_num(void) const
 	{
@@ -101,7 +104,7 @@ namespace MyGameProject
 	{
 		const auto x = pos().x(), y = pos().y();
 		const auto count{get_count()};
-		if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100) { set_flag_off(); }
+		if (!is_within_window(pos(), 50)) { set_flag_off(); }
 
 		if (count <= TURNING_POINT)
 		{

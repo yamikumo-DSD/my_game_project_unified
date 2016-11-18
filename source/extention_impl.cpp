@@ -112,6 +112,10 @@ namespace MyGameProject
 			ASSIGN_NUM_TO_NAME(12, Crow3            )
 			ASSIGN_NUM_TO_NAME(13, Amenbo           )
 			ASSIGN_NUM_TO_NAME(14, SmallBattleShip  )
+			ASSIGN_NUM_TO_NAME(15, Dragonfly        )
+			ASSIGN_NUM_TO_NAME(16, LaserLauncher    )
+			ASSIGN_NUM_TO_NAME(17, Bomber           )
+			ASSIGN_NUM_TO_NAME(18, Helli            )
 			default: throw std::runtime_error("Undefined enemy type.");
 		}
 	#undef ASSIGN_NUM_TO_NAME
@@ -256,6 +260,7 @@ namespace MyGameProject
 			ASSIGN_NUM_TO_NAME(0, BlackWings )
 			ASSIGN_NUM_TO_NAME(1, MegaCrow   )
 			ASSIGN_NUM_TO_NAME(2, Aya        )
+			ASSIGN_NUM_TO_NAME(3, Brades     )
 			default: throw std::runtime_error("Undefined boss type.");
 		}
 	#undef ASSIGN_NUM_TO_NAME
@@ -354,6 +359,10 @@ namespace MyGameProject
 			ASSIGN_NUM_TO_NAME(12, Crow3            )
 			ASSIGN_NUM_TO_NAME(13, Amenbo           )
 			ASSIGN_NUM_TO_NAME(14, SmallBattleShip  )
+			ASSIGN_NUM_TO_NAME(15, Dragonfly        )
+			ASSIGN_NUM_TO_NAME(16, LaserLauncher    )
+			ASSIGN_NUM_TO_NAME(17, Bomber           )
+			ASSIGN_NUM_TO_NAME(18, Helli            )
 			default: throw std::runtime_error("Undefined enemy type.");
 		}
 	#undef ASSIGN_NUM_TO_NAME

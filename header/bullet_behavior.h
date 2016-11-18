@@ -16,6 +16,8 @@ namespace MyGameProject
 	extern Bullet::Behavior course9;
 	extern Bullet::Behavior course10;
 
+	extern Bullet::Behavior dummy_course;
+
 	Bullet::Behavior straight_course(Real _speed);
 	Bullet::Behavior accurate_homing(const MovingObject& _target, Real _speed, int _keep_time);
 	Bullet::Behavior parabola(Real _V0,Real _G);

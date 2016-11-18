@@ -15,9 +15,11 @@
 #include "image_pool.h"
 #include "decl_static_image_handler.h"
 #include "history.h"
+#include "border_check.h"
+#include "add_get.h"
 
-static constexpr int MAX_HP_MASTER = 500;
-static constexpr int MAX_HP_SLAVE = 150;
+static constexpr int MAX_HP_MASTER = 1000;
+static constexpr int MAX_HP_SLAVE = 250;
 
 /////////////        Slave        ////////////////
 
@@ -161,7 +163,9 @@ namespace MyGameProject
 
 	void Master::accessory_custom_updater(void)
 	{
-		if (get_count() == 0)
+		const auto count{get_count()};
+
+		if (count == 0)
 		{
 				static constexpr int SLAVE_NUM = 6;
 				for (int i = 0; i != SLAVE_NUM; ++i)
@@ -182,8 +186,7 @@ namespace MyGameProject
 				}
 		}
 
-		const auto x = pos().x(), y = pos().y();
-		if (x < -100 || x > 640 + 100 || y < -100 || y > 480 + 100)
+		if (!is_within_window(pos(), 100) && count > 200)
 		{
 			set_flag_off();
 		}
@@ -216,6 +219,123 @@ namespace MyGameProject
 	}
 
 	Master::~Master(void) {}
+
+	struct RedMaster::Impl
+	{
+		static std::array<int, 3> img;
+	};
+
+	std::array<int, 3> RedMaster::Impl::img;
+
+	RedMaster::RedMaster
+	(
+		BulletPtrContainer& _bullets,
+		SEManager& _se_manager,
+		gp::smart_ptr<EnemyOrder> _order,
+		const Player& _player
+	)
+		:MobEnemy(_bullets, _se_manager, _order, MAX_HP_MASTER, Class::MIDDLE, _player, ShapeElement::Circle(20)),
+		pimpl(std::make_unique<Impl>())
+	{}
+
+	void RedMaster::accessory_custom_updater(void)
+	{
+		const auto count{get_count()};
+
+		if (!is_within_window(pos(), 100) && count > 200)
+		{
+			set_flag_off();
+		}
+	} //RedMaster::accessory_cutom_updater
+
+	void RedMaster::draw(void) const
+	{
+		const auto v{calc_velocity()};
+		if (norm(v) < 3) //if *this is moving slowly...
+		{
+			gp::DrawRotaGraphF(gp::level(11), pos().x(), pos().y(), 1.3, 0.0, Impl::img[(get_count() / 30) % 2], true);
+		}
+		else
+		{
+			gp::DrawRotaGraphF(gp::level(11), pos().x(), pos().y(), 1.3, angle_of(v) + boost::math::constants::half_pi<Real>(), Impl::img[2], true);
+		}
+	}
+
+	void RedMaster::preperation(void)
+	{
+		Impl::img[0] = add_get("../../data/img/red_little_master0.png");
+		Impl::img[1] = add_get("../../data/img/red_little_master1.png");
+		Impl::img[2] = add_get("../../data/img/red_little_master2.png");
+	}
+
+	RedMaster::~RedMaster(void) {}
+
+	struct BlackSpirit::Impl
+	{
+		static int img;
+		HistoryReserver<7, Point2D> history;
+	};
+
+	int BlackSpirit::Impl::img;
+
+	BlackSpirit::BlackSpirit
+	(
+		BulletPtrContainer& _bullets,
+		SEManager& _se_manager,
+		gp::smart_ptr<EnemyOrder> _order,
+		const Player& _player
+	)
+		:MobEnemy(_bullets, _se_manager, _order, MAX_HP_SLAVE, Class::MIDDLE, _player, ShapeElement::Circle(10)),
+		pimpl(std::make_unique<Impl>())
+	{
+		pimpl->history.initialize(pos());
+	}
+
+	void BlackSpirit::accessory_custom_updater(void)
+	{
+		const auto count{get_count()};
+
+		pimpl->history.shift_forward(pos());
+
+		if (!is_within_window(pos(), 100) && count > 200)
+		{
+			set_flag_off();
+		}
+	} //BlackSpirit::accessory_cutom_updater
+
+	void BlackSpirit::draw(void) const
+	{
+		const auto& history{pimpl->history};
+		for (int i = 0; i != history.size(); ++i)
+		{
+			gp::DrawRotaGraphF
+			(
+				gp::level(10), 
+				get<0>(history[i]).x(),
+				get<0>(history[i]).y(),
+				(history.size() - static_cast<float>(i)) / history.size(), 
+				0, Impl::img, true
+			);
+			if (i < history.size() - 1)
+			{
+				gp::DrawRotaGraphF
+				(
+					gp::level(10), 
+					(get<0>(history[i]).x() + get<0>(history[i + 1]).x()) / 2,
+					(get<0>(history[i]).y() + get<0>(history[i + 1]).y()) / 2,
+					(history.size() - static_cast<float>(i + 0.5f)) / history.size(),
+					0, Impl::img, true
+				);
+			}
+		}
+	}
+
+	void BlackSpirit::preperation(void)
+	{
+		Impl::img = add_get("../../data/img/dark_force.png");
+	}
+
+	BlackSpirit::~BlackSpirit(void) {}
 }
 
 /////////////////////////////////////////////////

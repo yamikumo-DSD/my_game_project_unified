@@ -97,6 +97,8 @@ namespace gp
 		DrawOrder::Reference operator>>(DrawOrder::Reference Bottom, DrawOrder::Reference Top);
 	}
 
+	void SetDefaultScreen(int _screen);
+
 	using Level = Imple::DrawOrder::Level;
 	Level level(unsigned int level);
 

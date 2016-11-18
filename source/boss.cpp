@@ -6,22 +6,6 @@
 
 namespace MyGameProject
 {
-	gp::smart_ptr<Boss> Boss::create
-		(
-			const std::string& _boss_name,
-			BulletPtrContainer& _bullets,
-			ItemPtrContainer& _items,
-			std::function<void(const std::string&)> _se_flag_setter,
-			std::function<void(float)> _play_speed_changer,
-			const Player& _player
-			)
-	{
-		if (_boss_name == "BlackWings") { return gp::make_smart<BlackWings>(_bullets, _items, _se_flag_setter, _play_speed_changer, _player); }
-		if (_boss_name == "MegaCrow") { return gp::make_smart<MegaCrow>(_bullets, _items, _se_flag_setter, _play_speed_changer, _player); }
-		if (_boss_name == "Aya") { return gp::make_smart<Aya>(_bullets, _items, _se_flag_setter, _play_speed_changer, _player); }
-		else { throw std::runtime_error("Undefined type of boss."); }
-	}
-
 	Boss::Boss
 		(
 			BulletPtrContainer& _bullets,
@@ -61,6 +45,7 @@ namespace MyGameProject
 		BlackWings::preperation();
 		MegaCrow::preperation();
 		Aya::preperation();
+		Brades::preperation();
 	}
 
 	bool Boss::is_just_killed_now(void) const noexcept { return false; }

@@ -5,7 +5,7 @@
 #include "bullet.h"
 #include "mathematics.h"
 #include "draw_order.h"
-#include "environmental_constants.h"
+#include "border_check.h"
 
 namespace MyGameProject
 {
@@ -13,23 +13,16 @@ namespace MyGameProject
 	class B234 : public Bullet
 	{
 	private:
+		static std::array<int, 3>& img_handle(void);
+		Real old_angle{0};
 		virtual void custom_updater(void) override final
 		{
-			if 
-			(
-				get_count() > 200 && 
-				(
-					pos().x() < 0 ||
-					pos().x() > WW<Real>() || 
-					pos().y() < 0 ||
-					pos().y() > WH<Real>()
-				)
-			)
+			if ( get_count() > 200 && !is_within_window(pos(), 10) )
 			{
 				set_flag_off();
 			}
+			if (norm(v()) > 0.001f) { old_angle = angle_of(v()); }
 		}
-		static std::array<int, 3>& img_handle(void);
 	public:
 		B234
 		(
@@ -39,16 +32,18 @@ namespace MyGameProject
 			Real _initial_angle,
 			Behavior _behavior
 		) noexcept
-		:Bullet(_master, _player, _initial_pos, _initial_angle, ShapeElement::Circle(8), _behavior)
+		:Bullet(_master, _player, _initial_pos, _initial_angle, ShapeElement::Circle(8), _behavior),
+			old_angle(_initial_angle)
 		{}
 		virtual ~B234(void) noexcept = default;
 
 		virtual void draw(void) const override
 		{
+			const Real angle = norm(v()) > 0.001f ? angle_of(v()) : old_angle;
 			gp::DrawRotaGraphF
 			(
 				gp::level(12),
-				pos().x(), pos().y(), 1.5, angle_of(v()) + boost::math::constants::half_pi<Real>(),
+				pos().x(), pos().y(), 1.5, angle + boost::math::constants::half_pi<Real>(),
 				img_handle()[(get_count() / 4) % 3], true
 			);
 		}

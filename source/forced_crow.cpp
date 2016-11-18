@@ -10,40 +10,24 @@
 #include "draw_order.h"
 #include "mathematics.h"
 #include <dxlib.h>
+#include "border_check.h"
+#include "debug_value.h"
 
 namespace MyGameProject
 {
 	constexpr int INITIAL_HEALTH{40};
-
-	class Force : public Bullet
-	{
-	private:
-		const int master_id;
-		virtual void custom_updater(void) override final
-		{
-			if (!is_id_enable(SharedObject::enemies(), master_id))
-			{
-				set_flag_off();
-			}
-		}
-	public:
-		Force(const Enemy& _master, const Player& _player) 
-			:Bullet(_master, _player, _master.pos(), 0, ShapeElement::Circle(20), [](Bullet& _bullet) {_bullet.pos() = _bullet.get_master_ref().pos(); }),
-			master_id(_master.get_id())
-		{
-		}
-		virtual void draw(void) const override final {/* Do notiong */}
-		virtual void hit(void) override final {/* Do notiong  */}
-		virtual bool is_resistant(void) const { return true; }
-		~Force(void) {}
-	};
 
 	struct ForcedCrow::Impl
 	{
 		STATIC_IMAGE_HANDLER(img)
 		STATIC_IMAGE_HANDLER(trail_img)
 		static constexpr std::size_t TRAIL_NUM{5};
-		std::array<std::pair<Point2D, Real>, TRAIL_NUM> trails;
+		struct Trail
+		{
+			Point2D pos;
+			Real angle; 
+		};
+		mutable std::array<Trail, TRAIL_NUM> trails;
 	};
 
 	ForcedCrow::ForcedCrow
@@ -65,31 +49,29 @@ namespace MyGameProject
 		const auto count{get_count()};
 		if (count == 0)
 		{
-			*find_vacant_object(SharedObject::bullets()) = std::make_shared<Force>(*this, player_ref());
+			for (auto& p : pimpl->trails) { p.pos = pos(); p.angle = angle_of(calc_velocity());}
+		}
 
-			for (auto& p : pimpl->trails) { p.first = pos(); p.second = angle_of(velocity());}
-		}
-		else
-		{
-			auto& trails{pimpl->trails};
-			for (int i = trails.size() - 1; i != 0; --i) { trails[i] = trails[i - 1]; ; }
-			trails[0].first = pos(); trails[0].second = angle_of(velocity());
-		}
+		if (!is_within_window(pos(), 50) && count > 200) { set_flag_off(); }
 	}
 
 	void ForcedCrow::draw(void) const
 	{
-		const auto dir{angle_of(velocity())};
+		const auto dir{angle_of(calc_velocity())};
 		for (const auto& p : pimpl->trails)
 		{
 			gp::SetDrawBlendModeOf
 			(
-				gp::DrawRotaGraphF(gp::level(10), p.first.x(), p.first.y(), 1.0, boost::math::constants::half_pi<Real>() + p.second, Impl::trail_img(), true),
+				gp::DrawRotaGraphF(gp::level(10), p.pos.x(), p.pos.y(), 1.0, boost::math::constants::half_pi<Real>() + p.angle, Impl::trail_img(), true),
 				DX_BLENDMODE_ALPHA,
 				100
 			);
 		}
 		gp::DrawRotaGraphF(gp::level(10), pos().x(), pos().y(), 1.0, boost::math::constants::half_pi<Real>() + dir, Impl::img(), true);
+
+		auto& trails{pimpl->trails};
+		for (int i = trails.size() - 1; i != 0; --i) { trails[i] = trails[i - 1]; ; }
+		trails[0].pos = pos(); trails[0].angle = angle_of(calc_velocity());
 	}
 
 	void ForcedCrow::preparation(void)

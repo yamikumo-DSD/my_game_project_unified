@@ -42,7 +42,15 @@ namespace MyGameProject
 				100
 			);
 		}
-		else{ gp::DrawRotaGraph(gp::level(14), pos().x(), pos().y(), 1.7, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/shot_active.png"), TRUE); }
+		else
+		{
+			gp::SetDrawBlendModeOf
+			(
+				gp::DrawRotaGraph(gp::level(13), pos().x(), pos().y(), 1.7, angle() + pi<Real>() / 2, ImagePool::get("../../data/img/hyper_shot.png"), TRUE),
+				DX_BLENDMODE_ADD,
+				150
+			);
+		}
 	}
 
 	void HyperShot2::hit(void)
@@ -72,6 +80,9 @@ namespace MyGameProject
 		}
 		else
 		{
+			const auto x = pos().x(), y = pos().y();
+			pos().x(x + (SHOT_VELOCITY / 5) * std::cos(angle()));
+			pos().y(y + (SHOT_VELOCITY / 5) * std::sin(angle()));
 			if (count > hit_moment + 10){ set_flag_off(); }
 		}
 

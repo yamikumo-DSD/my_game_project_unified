@@ -23,6 +23,7 @@
 #include <type_traits>
 #include "destroy_enemy_rate.h"
 #include "find_vacant_object.h"
+#include "debug_value.h"
 
 namespace MyGameProject
 {
@@ -31,13 +32,25 @@ namespace MyGameProject
 	{
 		using namespace std;
 
-		template<class DynamicObjectPtrContainer>
-		inline void dynamic_object_updater(DynamicObjectPtrContainer& _objects)
+		template<typename TimePoint>
+		inline int time_count_to_now(const TimePoint& _start)
+		{
+			return static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - _start).count());
+		}
+
+		template<typename Object>
+		inline bool is_valid(std::shared_ptr<Object> _shared_ptr)
+		{
+			return _shared_ptr && _shared_ptr->get_flag();
+		}
+
+		template<typename Objects>
+		inline void update(Objects& _objects)
 		{
 			for (auto& object : _objects)
 			{
-				if (object && object->get_flag()) { object->update(); }
-				else { object.reset(); }
+				if (is_valid(object)) { object->update(); continue; }
+				object.reset();
 			}
 		}
 
@@ -109,10 +122,12 @@ namespace MyGameProject
 		count(0),
 		slow(1),
 		static_count(0),
-		RepeatableVM(),
 		player_health_gage(),
 		lock_rate_indicator(MAX_LOCK_RATE_INDICATOR_UNIT_DISPLAYED),
-		stage_proceeding_signal(StageProceedingSignal::START_INITIAL_STAGE)
+		stage_proceeding_signal(StageProceedingSignal::START_INITIAL_STAGE),
+		L(nullptr, &lua_close),
+		thread_status(LUA_OK),
+		tasks()
 	{
 		player = gp::make_smart<Player>
 		(
@@ -263,28 +278,37 @@ namespace MyGameProject
 		{
 			using namespace std::chrono;
 			player->update();
-			//Tools::dynamic_object_updater(enemies);
-			Tools::dynamic_object_updater(SharedObject::enemies());
+			Tools::update(SharedObject::enemies());
 
-			execute();
+			//Update BG.
+			auto start_t = system_clock::now();
+			back_ground_control->apply();
+			update_back_ground_cost = Tools::time_count_to_now(start_t);
+
+			//Update bullets.
+			start_t = system_clock::now();
+			Tools::update(SharedObject::bullets());
+			update_bullet_cost = Tools::time_count_to_now(start_t);
+
+			//Call lua main thread.
+			if (thread_status == LUA_OK || thread_status == LUA_YIELD)
+			{
+				thread_status = lua_resume(this_thread, nullptr, 0); 
+			}
+			//Run child tasks.
+			tasks.resume_all();
+
 			if (!boss.expired() && boss.lock()->get_flag())
 			{
 				back_ground_control->wait_signal(boss.lock()->notify());
 			}
 
-			auto start_t = system_clock::now();
-			back_ground_control->apply();
-			update_back_ground_cost = static_cast<int>(duration_cast<microseconds>(system_clock::now() - start_t).count());
-
 			start_t = system_clock::now();
-			Tools::dynamic_object_updater(SharedObject::bullets());
-			update_bullet_cost = static_cast<int>(duration_cast<microseconds>(system_clock::now() - start_t).count());
-			start_t = system_clock::now();
-			Tools::dynamic_object_updater(shots);
-			update_shot_cost = static_cast<int>(duration_cast<microseconds>(system_clock::now() - start_t).count());
-			Tools::dynamic_object_updater(SharedObject::items());
+			Tools::update(shots);
+			update_shot_cost = Tools::time_count_to_now(start_t);
+			Tools::update(SharedObject::items());
 			player_health_gage.update(player->health(), player->pos().y());
-			Tools::dynamic_object_updater(lock_rate_indicator);
+			Tools::update(lock_rate_indicator);
 			base_rate_drawer.update(base_rate);
 			score_drawer.update(score);
 
@@ -307,7 +331,7 @@ namespace MyGameProject
 			++count;
 		}
 		++static_count;
-		update_cost = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count());
+		update_cost = Tools::time_count_to_now(start);
 	}
 
 	void PlayGame::unload(void)

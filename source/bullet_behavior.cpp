@@ -13,6 +13,8 @@
 
 namespace{ using namespace std; using namespace boost::math::constants; using namespace boost::geometry; }
 
+MyGameProject::Bullet::Behavior MyGameProject::dummy_course = [](MyGameProject::Bullet& _b)->void{};
+
 MyGameProject::Bullet::Behavior MyGameProject::straight_course(Real _speed)
 {
 	return[=](Bullet& _b)->void

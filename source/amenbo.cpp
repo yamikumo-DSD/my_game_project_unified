@@ -70,7 +70,9 @@ namespace MyGameProject
 			auto&& p_angle{pimpl->proximal_leg_seg_angle[i]};
 			auto&& d_angle{pimpl->distal_leg_seg_angle[i]};
 
-			if (norm(velocity()) < 1)
+			const auto v{calc_velocity()};
+
+			if (norm(v) < 1)
 			{
 				if (p_angle > Impl::PROXIMAL_BASE_ANGLE[i]) { p_angle -= 0.01f; }
 				else { p_angle += 0.01f; }
@@ -80,7 +82,7 @@ namespace MyGameProject
 			}
 			else
 			{
-				if (velocity().x() * sin(p_angle) - velocity().y() * cos(p_angle) > 0)
+				if (v.x() * sin(p_angle) - v.y() * cos(p_angle) > 0)
 				{
 					if (p_angle < Impl::PROXIMAL_BASE_ANGLE[i] + pi<Real>() / 8) { p_angle += 0.02f; }
 				}
@@ -89,7 +91,7 @@ namespace MyGameProject
 					if (p_angle > Impl::PROXIMAL_BASE_ANGLE[i] - pi<Real>() / 8) { p_angle -= 0.02f; }
 				}
 
-				if (velocity().x() * sin(d_angle) - velocity().y() * cos(d_angle) > 0)
+				if (v.x() * sin(d_angle) - v.y() * cos(d_angle) > 0)
 				{
 					if (d_angle < Impl::DISTAL_BASE_ANGLE[i] + pi<Real>() / 12) { d_angle += 0.02f; }
 				}
@@ -135,8 +137,8 @@ namespace MyGameProject
 					);
 				}
 
-				static constexpr auto BASE_COLOR{gp::Color(150, 150, 150)};
-				static constexpr auto TOP_COLOR{gp::Color(200, 200, 200)};
+				static constexpr auto BASE_COLOR{gp::Color(50, 50, 50)};
+				static constexpr auto TOP_COLOR{gp::Color(100, 100, 100)};
 
 				gp::DrawLine(gp::level(12), leg_root_pos.x(), leg_root_pos.y(), joint_pos.x(), joint_pos.y(), BASE_COLOR, 4);
 				gp::DrawLine(gp::level(12), joint_pos.x(), joint_pos.y(), foot_pos.x(), foot_pos.y(), BASE_COLOR, 4);

@@ -6,11 +6,11 @@
 #include "scene.h"
 #include "smart_ptr.h"
 #include <vector>
-#include "vm/vm.h"
 #include "player_health_gage.h"
 #include "base_rate_drawer.h"
 #include "score_drawer.h"
-#include <boost/optional.hpp>
+#include "multitask.h"
+#include <lua.h>
 
 #define DEBUG_MODE 1
 
@@ -28,10 +28,7 @@ namespace MyGameProject
 	class BackGroundControl;
 	class DestroyEnemyRate;
 
-	class PlayGame : 
-		public MyGameProject::Scene,
-		public boost::static_visitor<void>,
-		public MyVM::RepeatableVM
+	class PlayGame : public MyGameProject::Scene
 	{
 #if DEBUG_MODE
 	private:
@@ -73,23 +70,15 @@ namespace MyGameProject
 			STAY, START_INITIAL_STAGE, GOTO_NEXT_STAGE, GOTO_STAGE0, GOTO_STAGE3,
 		}stage_proceeding_signal;
 
-		virtual void user_extention_0(void) override final;
-		virtual void user_extention_1(void) override final;
-		virtual void user_extention_2(void) override final;
-		virtual void user_extention_3(void) override final;
-		virtual void user_extention_4(void) override final;
-		virtual void user_extention_5(void) override final;
-		virtual void user_extention_6(void) override final;
-		virtual void user_extention_7(void) override final;
-		virtual void user_extention_8(void) override final;
-		virtual void user_extention_9(void) override final;
-		virtual void user_extention_10(void) override final;
-		virtual void user_extention_11(void) override final;
-		virtual void user_extention_12(void) override final;
-		virtual void user_extention_13(void) override final;
-		virtual void user_extention_14(void) override final;
-		virtual void user_extention_15(void) override final;
-		virtual void user_extention_16(void) override final;
+		//BUILTIN LUA
+		std::unique_ptr<lua_State, decltype(&lua_close)> L;
+		//Main thread
+		lua_State* this_thread;
+		LuaUtilities::ThreadStatus thread_status;
+		//Child threads.
+		LuaUtilities::TaskSystem tasks;
+		//Adapt C++ class to lua environments.
+		void adapt_class(lua_State* _state);
 	public:
 		PlayGame(void);
 		void change_play_speed(float _speed);
@@ -98,6 +87,9 @@ namespace MyGameProject
 		virtual void update(void) override;
 		virtual void load(void) override;
 		virtual void unload(void) override;
+
+		auto player_handle(void) const { return player; }
+		auto se_manager_handle(void) const { return se_manager; }
 
 		virtual ~PlayGame(void);
 	};

@@ -2,12 +2,13 @@
 
 #include "draw_order.h"
 #include "dxlib.h"
-#include "msgbox.h"
 
 namespace gp
 {
 	namespace Imple
 	{
+		static int default_screen{static_cast<int>(DX_SCREEN_BACK)};
+
 		DrawOrder::Level::Level(unsigned int _level) :level(_level) {}
 		unsigned int DrawOrder::Level::value(void) const { return level; }
 		DrawOrder::Level DrawOrder::level(unsigned int _level) { return Level(_level); }
@@ -122,7 +123,7 @@ namespace gp
 			{
 				::SetDrawScreen(GrHandle);
 				temp();
-				::SetDrawScreen(DX_SCREEN_BACK);
+				::SetDrawScreen(default_screen);
 			};
 			return Drawer;
 		}
@@ -161,7 +162,7 @@ namespace gp
 			int result{0};
 			result += DxLib::SetDrawScreen(value);
 			result += DxLib::ClearDrawScreen();
-			result += DxLib::SetDrawScreen(DX_SCREEN_BACK);
+			result += DxLib::SetDrawScreen(default_screen);
 			return result < 0 ? -1 : 0;
 		}
 
@@ -171,6 +172,11 @@ namespace gp
 		}
 
 		DrawOrder::ScopedGraph::~ScopedGraph(void) noexcept { DxLib::DeleteGraph(value); }
+	}
+
+	void SetDefaultScreen(int _screen)
+	{
+		Imple::default_screen = _screen;
 	}
 
 	Level level(unsigned int level) { return Imple::DrawOrder::level(level); }

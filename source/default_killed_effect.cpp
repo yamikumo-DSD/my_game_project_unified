@@ -61,7 +61,9 @@ namespace MyGameProject
 	{
 		switch (_class)
 		{
-		case Enemy::Class::SMALL: return std::make_unique<KilledEffectSmall>(_killed_pos);
+		case Enemy::Class::SMALL : return std::make_unique<KilledEffectSmall>(_killed_pos);
+		// User same effect of class SMALL for now.
+		case Enemy::Class::MIDDLE: return std::make_unique<KilledEffectSmall>(_killed_pos);
 		default: return nullptr;
 		}
 	}

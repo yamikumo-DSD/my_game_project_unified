@@ -18,24 +18,6 @@ namespace MyGameProject
 	public:
 		using BulletPtrContainer = std::vector < gp::smart_ptr<Bullet> >;
 		using ActPattern = std::function<void(MobEnemy&)>;
-
-		static gp::smart_ptr<MobEnemy> create
-		(
-			const std::string& _name,
-			BulletPtrContainer& _bullets,
-			SEManager& _se_manager,
-			gp::smart_ptr<EnemyOrder> _order, 
-			const Player& _player
-		);
-		static gp::smart_ptr<MobEnemy> create
-		(
-			const std::string& _name,
-			BulletPtrContainer& _bullets,
-			SEManager& _se_manager,
-			gp::smart_ptr<EnemyOrder> _order, 
-			const Player& _player,
-			std::vector<gp::smart_ptr<Enemy>>& _enemies
-		);
 		static constexpr auto IMMORTAL = INT_MAX;
 	private:
 		virtual void custom_updater(void) override final;
@@ -76,7 +58,9 @@ namespace MyGameProject
 		SEManager& get_se_manager_ref(void);
 		const Point2D& velocity(void) const;
 		Point2D& velocity(void);
-		virtual void hit(int _shot_power) override final;
+		Point2D calc_velocity(void) const;
+		virtual void hit(int _shot_power) override;
+		void damage(int _shot_power);
 		virtual void draw(void) const = 0;
 		virtual void draw_killed_effect(void) const;
 		virtual ~MobEnemy(void);

@@ -67,7 +67,7 @@ namespace MyGameProject
 	void Fairy_1::draw(void) const
 	{
 		static constexpr auto THRESHOLD{0.5};
-		const auto vx{velocity().x()};
+		const auto vx{calc_velocity().x()};
 		std::size_t image_channel{0};
 		if (vx > THRESHOLD) { image_channel = Impl::Direction::RIGHT; }
 		else if (vx < -THRESHOLD) { image_channel = Impl::Direction::LEFT; }
@@ -114,7 +114,7 @@ namespace MyGameProject
 	void Fairy_2::draw(void) const
 	{
 		static constexpr auto THRESHOLD{0.5};
-		const auto vx{velocity().x()};
+		const auto vx{calc_velocity().x()};
 		std::size_t image_channel{0};
 		if (vx > THRESHOLD) { image_channel = Impl::Direction::RIGHT; }
 		else if (vx < -THRESHOLD) { image_channel = Impl::Direction::LEFT; }
@@ -152,8 +152,8 @@ namespace MyGameProject
 	void Fairy_3::draw(void) const
 	{
 		static constexpr auto V_THRESHOLD{0.5};
-		const auto dir{angle_of(velocity()) + half_pi<Real>()};
-		const auto v{norm(velocity())};
+		const auto dir{angle_of(calc_velocity()) + half_pi<Real>()};
+		const auto v{norm(calc_velocity())};
 		gp::DrawRotaGraphF
 		(
 			gp::level(11),

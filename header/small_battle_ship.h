@@ -6,7 +6,7 @@
 
 namespace MyGameProject
 {
-	class SmallBattleShip : public MobEnemy
+	class SmallBattleShip : public MobEnemy, public std::enable_shared_from_this<SmallBattleShip>
 	{
 	private:
 		struct Impl; std::unique_ptr<Impl> pimpl;

@@ -13,5 +13,7 @@
 #include "b0.h"
 #include "b1.h"
 #include "b_234.h"
+#include "invisible.h"
+#include "resistant_bullet.h"
 
 #endif
